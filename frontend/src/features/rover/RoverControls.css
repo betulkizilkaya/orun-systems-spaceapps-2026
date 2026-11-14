@@ -1,0 +1,62 @@
+.rover-controls {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.85rem;
+  border: 1px solid #40515c;
+  border-radius: 0.75rem;
+  background: #111d28;
+  color: #e9f2fa;
+}
+
+.rover-controls h2,
+.rover-controls p,
+.rover-controls dl,
+.rover-controls dd {
+  margin: 0;
+}
+
+.rover-controls p,
+.rover-controls dt {
+  color: #b3c2d0;
+  font-size: 0.8rem;
+}
+
+.rover-actions,
+.rover-speed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rover-controls button,
+.rover-controls select {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #50616d;
+  border-radius: 0.4rem;
+  background: #172734;
+  color: #e9f2fa;
+  cursor: pointer;
+}
+
+.rover-controls button[aria-pressed='true'] {
+  border-color: #ffc475;
+  color: #ffc475;
+}
+
+.rover-progress {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.rover-progress input {
+  width: 100%;
+  accent-color: #ffc475;
+}
+
+.rover-telemetry {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}

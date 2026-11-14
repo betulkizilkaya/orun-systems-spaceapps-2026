@@ -13,6 +13,10 @@ import './features/mission/RouteComparison.css'
 import './features/mission/JezeroOpening.css'
 import { loadRouteGrid, shortestRoute } from './features/mission/routeGrid'
 import { SlopeAnalysisPanel } from './SlopeAnalysisPanel'
+import { RoverPlayback, type RoverTelemetry } from './features/rover/RoverPlayback'
+import { RoverControls } from './features/rover/RoverControls'
+import type { RoverCameraMode } from './features/rover/RoverCamera'
+import { loadRoverPlayback, type RoverPlaybackData } from './features/rover/roverPlaybackData'
 
 type MapPoint = [x: number, y: number, z: number]
 type ExampleRoute = {
@@ -105,7 +109,71 @@ export default function App() {
   const [gridError, setGridError] = useState(false)
   const [compare, setCompare] = useState(false)
 
+  const [showRover, setShowRover] = useState(false)
+  const [roverData, setRoverData] = useState<RoverPlaybackData | null>(null)
+  const [roverError, setRoverError] = useState('')
+  const [roverPlaying, setRoverPlaying] = useState(false)
+  const [roverDistance, setRoverDistance] = useState(0)
+  const [roverSpeed, setRoverSpeed] = useState(10)
+  const [roverCamera, setRoverCamera] = useState<RoverCameraMode>('orbit')
+  const [roverTelemetry, setRoverTelemetry] = useState<RoverTelemetry | null>(null)
+
   const isTopView = view === '2d'
+  const roverVisible = exploring && showRover && !isTopView
+  const roverOwnsCamera = roverVisible && Boolean(roverData) && roverCamera !== 'orbit'
+  const roverTotal = roverData?.frames.at(-1)?.distanceM ?? 0
+
+  useEffect(() => {
+    if (!roverVisible || roverData) return
+    const controller = new AbortController()
+
+    loadRoverPlayback(controller.signal)
+      .then((data) => {
+        if (!controller.signal.aborted) setRoverData(data)
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setRoverError(error instanceof Error ? error.message : 'Simülasyon rotası yüklenemedi.')
+        }
+      })
+
+    return () => controller.abort()
+  }, [roverVisible, roverData])
+
+  const roverRoute = useMemo(() => {
+    if (!terrain || !roverData) return []
+    return roverData.frames.flatMap(({ projectedX, projectedY }) => {
+      const point = terrain.projectToSurface(projectedX, projectedY)
+      return point ? [[point[0], point[1] + 0.15, point[2]] as MapPoint] : []
+    })
+  }, [terrain, roverData])
+
+  function closeRover() {
+    setShowRover(false)
+    setRoverPlaying(false)
+    setRoverCamera('orbit')
+  }
+
+  function toggleRover() {
+    if (showRover) {
+      closeRover()
+      return
+    }
+    setRoverError('')
+    setSelecting(null)
+    setView('3d')
+    setShowRover(true)
+  }
+
+  function updateRoverDistance(distance: number) {
+    setRoverDistance(distance)
+    if (distance >= roverTotal) setRoverPlaying(false)
+  }
+
+  function updateRoverPlaying(playing: boolean) {
+    if (playing && roverDistance >= roverTotal) setRoverDistance(0)
+    setRoverPlaying(playing)
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -419,7 +487,7 @@ export default function App() {
                 <mesh
                   geometry={terrain.geometry}
                   onClick={(event) => {
-                    if (!selecting || event.delta > 4) return
+                    if (!selecting || roverOwnsCamera || event.delta > 4) return
 
                     event.stopPropagation()
                     pickPoint([event.point.x, event.point.y, event.point.z])
@@ -456,11 +524,28 @@ export default function App() {
                 <MissionRoute
                   key={routeVersion}
                   points={routePositions}
-                  cinematic={verified && !isTopView}
+                  cinematic={verified && !isTopView && !roverVisible}
                 />
               )}
 
-              {isTopView ? (
+              {roverVisible && roverRoute.length > 1 && (
+                <Line points={roverRoute} color="#ffc475" lineWidth={2} />
+              )}
+
+              {roverVisible && terrain && roverData && (
+                <RoverPlayback
+                  data={roverData}
+                  projectToSurface={terrain.projectToSurface}
+                  playing={roverPlaying}
+                  speedMps={roverSpeed}
+                  distanceM={roverDistance}
+                  cameraMode={roverCamera}
+                  onDistanceChange={updateRoverDistance}
+                  onTelemetry={setRoverTelemetry}
+                />
+              )}
+
+              {!roverOwnsCamera && (isTopView ? (
                 <OrbitControls
                   makeDefault
                   enableRotate={false}
@@ -478,12 +563,12 @@ export default function App() {
                   makeDefault
                   enableDamping
                   target={[0, 0, 0]}
-                  minDistance={25}
+                  minDistance={roverVisible ? 3 : 25}
                   maxDistance={450}
                   maxPolarAngle={Math.PI / 2 - 0.06}
                 />
-              )}
-              {terrain && <TerrainFraming geometry={terrain.geometry} />}
+              ))}
+              {terrain && !roverOwnsCamera && <TerrainFraming geometry={terrain.geometry} />}
             </Canvas>
             {showSlopeAnalysis && (
               <SlopeAnalysisPanel onClose={() => setShowSlopeAnalysis(false)} />
@@ -494,7 +579,7 @@ export default function App() {
             <button
               type="button"
               aria-pressed={isTopView}
-              onClick={() => setView('2d')}
+              onClick={() => { closeRover(); setView('2d') }}
             >
               2B · Üstten
             </button>
@@ -538,7 +623,32 @@ export default function App() {
               {isTopView ? 'Üstten görünüm' : 'Dikey ölçek 1×'}
             </div>
           </section>
-          <aside className="mission-console" aria-label="Rota planlama">
+          <aside className="mission-console" aria-label="Rota planlama ve astronot simülasyonu">
+            <button
+              type="button"
+              aria-expanded={showRover}
+              disabled={!terrain}
+              onClick={toggleRover}
+            >
+              {showRover ? 'Simülasyonu kapat' : 'Astronot simülasyonunu aç'}
+            </button>
+            {showRover && (roverData ? (
+              <RoverControls
+                playing={roverPlaying}
+                setPlaying={updateRoverPlaying}
+                distanceM={roverDistance}
+                setDistanceM={updateRoverDistance}
+                totalDistanceM={roverTotal}
+                speedMps={roverSpeed}
+                setSpeedMps={setRoverSpeed}
+                cameraMode={roverCamera}
+                setCameraMode={setRoverCamera}
+                telemetry={roverTelemetry}
+              />
+            ) : (
+              <p role="status">{roverError || 'Simülasyon rotası yükleniyor…'}</p>
+            ))}
+
             <header>
               <h2>Rota planlama</h2>
 
