@@ -1,0 +1,127 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #f4eee8;
+  background: #101318;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.map-page {
+  display: grid;
+  grid-template-rows: auto minmax(360px, 1fr) auto;
+  min-height: 100dvh;
+}
+
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px clamp(16px, 4vw, 48px);
+  border-bottom: 1px solid #2b3038;
+}
+
+.team-name {
+  margin: 0 0 4px;
+  color: #e6a489;
+  font-size: 0.8rem;
+}
+
+.map-header h1 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.85rem);
+}
+
+.terrain-label {
+  padding: 6px 10px;
+  border: 1px solid #64473b;
+  border-radius: 6px;
+  color: #f0bba5;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.map-viewport {
+  position: relative;
+  min-height: 360px;
+}
+
+.map-controls {
+  margin: 0;
+  padding: 12px clamp(16px, 4vw, 48px);
+  border-top: 1px solid #2b3038;
+  color: #b9bdc6;
+  font-size: 0.85rem;
+}
+.map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.map-controls button {
+  padding: 8px 12px;
+  border: 1px solid #414853;
+  border-radius: 6px;
+  color: #f4eee8;
+  background: #1d222a;
+  font: inherit;
+  cursor: pointer;
+}
+
+.map-controls button[aria-pressed='true'] {
+  border-color: #e6a489;
+  background: #392820;
+}
+
+.map-controls button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.map-controls button {
+  padding: 8px 12px;
+  border: 1px solid #414853;
+  border-radius: 6px;
+  color: #f4eee8;
+  background: #1d222a;
+  font: inherit;
+  cursor: pointer;
+}
+
+.map-controls button[aria-pressed='true'] {
+  border-color: #e6a489;
+  background: #392820;
+}
+
+.map-controls button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.map-page {
+  height: 100dvh;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.map-viewport {
+  min-width: 0;
+  min-height: 0;
+}
