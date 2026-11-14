@@ -157,6 +157,13 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
     return b * (1 - u) + d * (1 - v) + c * (u + v - 1)
   }
 
+  function projectToSurface(easting: number, northing: number): Point {
+    const x = (easting - west) * scale - SCENE_WIDTH / 2
+    const z = (north - northing) * scale - sceneDepth / 2
+
+    return [x, surfaceHeight(x, z), z]
+  }
+
   function getRoute(start: Point, end: Point): JezeroRoute | null {
     const cells = findRoute(grid, sceneToCell(start), sceneToCell(end))
     if (!cells) return null
@@ -197,5 +204,5 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
     }
   }
 
-  return { geometry, getRoute }
+  return { geometry, getRoute, projectToSurface, bounds: dem.bounds }
 }

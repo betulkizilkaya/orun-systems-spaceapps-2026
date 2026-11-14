@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { MOUSE, TOUCH } from 'three'
+import { GeologyLayer, GEOLOGY_UNITS } from './GeologyLayer'
 import { loadJezeroTerrain } from './jezeroTerrain'
 
 type MapPoint = [x: number, y: number, z: number]
@@ -37,6 +38,8 @@ export default function App() {
   const [end, setEnd] = useState<MapPoint | null>(null)
   const [terrain, setTerrain] = useState<JezeroTerrainData | null>(null)
   const [terrainError, setTerrainError] = useState<string | null>(null)
+  const [showGeology, setShowGeology] = useState(false)
+  const [geologyError, setGeologyError] = useState<string | null>(null)
 
   const isTopView = view === '2d'
 
@@ -95,6 +98,11 @@ export default function App() {
     setStart(null)
     setEnd(null)
     setSelecting(null)
+  }
+
+  function toggleGeology() {
+    setGeologyError(null)
+    setShowGeology((visible) => !visible)
   }
 
   let status = isTopView
@@ -173,6 +181,10 @@ export default function App() {
             </mesh>
           )}
 
+          {terrain && showGeology && (
+            <GeologyLayer terrain={terrain} onError={setGeologyError} />
+          )}
+
           {start && <PointMarker point={start} color="#75e7c8" />}
           {end && <PointMarker point={end} color="#ffc475" />}
 
@@ -230,6 +242,15 @@ export default function App() {
           3B · Arazi
         </button>
 
+        <button
+          type="button"
+          aria-pressed={showGeology}
+          disabled={!terrain}
+          onClick={toggleGeology}
+        >
+          Jeoloji
+        </button>
+
         {!isTopView && <span>Dikey ölçek 1×</span>}
 
         <button
@@ -261,6 +282,22 @@ export default function App() {
         <span role="status">
           {terrainError ?? (terrain ? status : 'Jezero arazisi yükleniyor…')}
         </span>
+
+        {showGeology && (
+          geologyError ? (
+            <span role="alert">{geologyError}</span>
+          ) : (
+            <span>
+              <span style={{ color: GEOLOGY_UNITS.cr.color }}>
+                {GEOLOGY_UNITS.cr.label}
+              </span>
+              {' · '}
+              <span style={{ color: GEOLOGY_UNITS.Nnp1.color }}>
+                {GEOLOGY_UNITS.Nnp1.label}
+              </span>
+            </span>
+          )
+        )}
       </div>
     </main>
   )
