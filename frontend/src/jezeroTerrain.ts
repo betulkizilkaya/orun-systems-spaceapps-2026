@@ -7,6 +7,7 @@ type Point = [x: number, y: number, z: number]
 type JezeroRoute = {
   points: Point[]
   maxSlope: number
+  distanceMeters: number
 }
 
 const SCENE_WIDTH = 120
@@ -161,6 +162,7 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
     if (!cells) return null
 
     let maxSlope = 0
+    const points: Point[] = [start]
 
     for (const [row, col] of cells) {
       const degrees = grid[row][col]
@@ -168,20 +170,31 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
       if (degrees !== null) {
         maxSlope = Math.max(maxSlope, degrees)
       }
+
+      if (cells.length > 1) {
+        const x = ((col + 0.5) / cols - 0.5) * SCENE_WIDTH
+        const z = ((row + 0.5) / rows - 0.5) * sceneDepth
+
+        points.push([x, surfaceHeight(x, z), z])
+      }
     }
 
-    if (cells.length === 1) {
-      return { points: [start, end], maxSlope }
+    points.push(end)
+
+    let horizontalSceneDistance = 0
+
+    for (let index = 1; index < points.length; index += 1) {
+      const [previousX, , previousZ] = points[index - 1]
+      const [x, , z] = points[index]
+
+      horizontalSceneDistance += Math.hypot(x - previousX, z - previousZ)
     }
 
-    const path = cells.map(([row, col]): Point => {
-      const x = ((col + 0.5) / cols - 0.5) * SCENE_WIDTH
-      const z = ((row + 0.5) / rows - 0.5) * sceneDepth
-
-      return [x, surfaceHeight(x, z), z]
-    })
-
-    return { points: [start, ...path, end], maxSlope }
+    return {
+      points,
+      maxSlope,
+      distanceMeters: horizontalSceneDistance / scale,
+    }
   }
 
   return { geometry, getRoute }

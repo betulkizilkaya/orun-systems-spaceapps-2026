@@ -10,6 +10,12 @@ type MapView = '2d' | '3d'
 type JezeroTerrainData = Awaited<ReturnType<typeof loadJezeroTerrain>>
 
 const MARKER_OFFSET = 1.2
+const distanceFormat = new Intl.NumberFormat('tr-TR', {
+  maximumFractionDigits: 0,
+})
+const slopeFormat = new Intl.NumberFormat('tr-TR', {
+  maximumFractionDigits: 1,
+})
 
 function overlayPosition([x, y, z]: MapPoint): MapPoint {
   return [x, y + MARKER_OFFSET, z]
@@ -101,9 +107,7 @@ export default function App() {
     status = 'Bitiş noktasını yerleştirmek için araziye tıkla.'
   } else if (start && end) {
     status = route
-      ? `Rota hücrelerinde en yüksek eğim: ${route.maxSlope.toLocaleString('tr-TR', {
-          maximumFractionDigits: 1,
-        })}°`
+      ? `Yatay rota uzunluğu ${distanceFormat.format(route.distanceMeters)} m · Rota hücrelerinde en yüksek eğim ${slopeFormat.format(route.maxSlope)}°`
       : 'Bu iki nokta arasında rota bulunamadı.'
   } else if (start) {
     status = 'Başlangıç yerleştirildi. Şimdi bitiş noktasını seç.'
