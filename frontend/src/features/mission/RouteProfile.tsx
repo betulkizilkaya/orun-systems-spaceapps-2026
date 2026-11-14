@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
-import { fromArrayBuffer } from 'geotiff'
+import { useMemo, useState } from 'react'
 import './RouteProfile.css'
 
 type Point = [number, number, number]
@@ -8,8 +7,10 @@ type Sample = { point: Point; distance: number; slope: number; row: number; col:
 const format = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 })
 
 export function RouteProfile({
-  points, width, depth, distanceMeters, verified, onHighlight,
+  points, width, depth, distanceMeters, verified, onHighlight, grid, gridError,
 }: {
+  grid: number[][] | null
+  gridError: boolean
   points: Point[]
   width: number
   depth: number
@@ -17,51 +18,7 @@ export function RouteProfile({
   verified: boolean
   onHighlight: (point: Point | null) => void
 }) {
-  const [grid, setGrid] = useState<number[][] | null>(null)
-  const [error, setError] = useState(false)
   const [selected, setSelected] = useState<number | null>(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function load() {
-      try {
-        const response = await fetch(
-          `${import.meta.env.BASE_URL}data/jezero-demo-slope.tif`,
-          { signal: controller.signal },
-        )
-        if (!response.ok) throw new Error('Slope raster unavailable')
-        const tiff = await fromArrayBuffer(await response.arrayBuffer())
-        const image = await tiff.getImage()
-        if (image.getWidth() !== 1000 || image.getHeight() !== 1000) {
-          throw new Error('Unexpected slope raster dimensions')
-        }
-        const values = await image.readRasters({ samples: [0], interleave: true })
-        const noData = image.getGDALNoData()
-        const cells = Array.from({ length: 100 }, (_, row) =>
-          Array.from({ length: 100 }, (_, col) => {
-            let max = 0
-            for (let y = row * 10; y < row * 10 + 10; y++) {
-              for (let x = col * 10; x < col * 10 + 10; x++) {
-                const slope = values[y * 1000 + x]
-                if (!Number.isFinite(slope) || slope === noData || slope < 0 || slope > 90) {
-                  return NaN
-                }
-                max = Math.max(max, slope)
-              }
-            }
-            return max
-          }),
-        )
-        if (!controller.signal.aborted) setGrid(cells)
-      } catch {
-        if (!controller.signal.aborted) setError(true)
-      }
-    }
-
-    void load()
-    return () => controller.abort()
-  }, [])
 
   const samples = useMemo(() => {
     if (!grid) return null
@@ -91,7 +48,7 @@ export function RouteProfile({
     })
   }, [grid, points, width, depth, distanceMeters])
 
-  if (error || samples?.some(({ slope }) => !Number.isFinite(slope))) {
+  if (gridError || samples?.some(({ slope }) => !Number.isFinite(slope))) {
     return <p role="status">Rota eğim profili yüklenemedi.</p>
   }
   if (!samples?.length) return <p role="status">Eğim profili yükleniyor…</p>

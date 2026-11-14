@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { OrbitControls } from '@react-three/drei'
+import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { MOUSE, TOUCH } from 'three'
 import { GeologyLayer, GEOLOGY_UNITS } from './GeologyLayer'
@@ -9,6 +9,8 @@ import { PanoramaDialog, type Panorama } from './PanoramaDialog'
 import { MissionRoute, TerrainFraming, TerrainTarget } from './features/mission/MissionScene'
 import { RouteProfile } from './features/mission/RouteProfile'
 import './features/mission/MissionLayout.css'
+import './features/mission/RouteComparison.css'
+import { loadRouteGrid, shortestRoute } from './features/mission/routeGrid'
 import { SlopeAnalysisPanel } from './SlopeAnalysisPanel'
 
 type MapPoint = [x: number, y: number, z: number]
@@ -64,6 +66,10 @@ export default function App() {
   const [highlight, setHighlight] = useState<MapPoint | null>(null)
   const [routeVersion, setRouteVersion] = useState(0)
 
+  const [grid, setGrid] = useState<number[][] | null>(null)
+  const [gridError, setGridError] = useState(false)
+  const [compare, setCompare] = useState(false)
+
   const isTopView = view === '2d'
 
   useEffect(() => {
@@ -99,6 +105,30 @@ export default function App() {
 
     return terrain.getRoute(start, end)
   }, [terrain, start, end])
+
+  const needsGrid = Boolean(route)
+
+  useEffect(() => {
+    if (!needsGrid || grid) return
+    const controller = new AbortController()
+    loadRouteGrid(controller.signal).then((result) => {
+      if (!controller.signal.aborted) setGrid(result)
+    }).catch(() => {
+      if (!controller.signal.aborted) setGridError(true)
+    })
+    return () => controller.abort()
+  }, [needsGrid, grid])
+
+  const alternative = useMemo(() => {
+    if (!compare || !grid || !route || !terrain || !start || !end) return null
+    const { width, height } = terrain.geometry.parameters
+    return shortestRoute(grid, start, end, terrain.bounds, width, height, terrain.projectToSurface)
+  }, [compare, grid, route, terrain, start, end])
+
+  const alternativePositions = useMemo(
+    () => alternative?.points.map(overlayPosition) ?? null,
+    [alternative],
+  )
 
   const routePositions = useMemo(
     () => route?.points.map(overlayPosition) ?? null,
@@ -279,6 +309,12 @@ export default function App() {
             {start && <PointMarker point={start} color="#75e7c8" />}
             {end && <PointMarker point={end} color="#ffc475" />}
 
+            {alternativePositions && (
+              <Line points={alternativePositions} color="#ffc475" lineWidth={2}
+                dashed dashSize={1} gapSize={1.25} renderOrder={11}
+                depthTest={false} depthWrite={false} />
+            )}
+
             {routePositions && (
               <MissionRoute
                 key={routeVersion}
@@ -422,8 +458,36 @@ export default function App() {
             </dl>
           )}
 
+          {route && (
+            <section className="route-comparison" aria-label="Rota karşılaştırması">
+              <button type="button" aria-pressed={compare}
+                onClick={() => setCompare((visible) => !visible)}>
+                {compare ? 'Karşılaştırmayı kapat' : 'En kısa rotayla karşılaştır'}
+              </button>
+              {compare && !grid && (
+                <p role="status">{gridError ? 'Eğim verisi okunamadı.' : 'Eğim verisi yükleniyor…'}</p>
+              )}
+              {compare && grid && !alternative && <p role="status">Alternatif rota oluşturulamadı.</p>}
+              {alternative && (
+                <table>
+                  <thead><tr><th scope="col">Rota</th><th scope="col">Yatay mesafe</th><th scope="col">Maks. eğim</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row"><i className="route-swatch route-swatch-weighted" />Eğim ağırlıklı</th>
+                      <td>{distanceFormat.format(route.distanceMeters)} m</td>
+                      <td>{slopeFormat.format(route.maxSlope)}°</td></tr>
+                    <tr><th scope="row"><i className="route-swatch route-swatch-short" />En kısa</th>
+                      <td>{distanceFormat.format(alternative.distanceMeters)} m</td>
+                      <td>{slopeFormat.format(alternative.maxSlope)}°</td></tr>
+                  </tbody>
+                </table>
+              )}
+            </section>
+          )}
+
           {route && terrain && (
             <RouteProfile key={routeVersion}
+              grid={grid}
+              gridError={gridError && !grid}
               points={route.points}
               width={terrain.geometry.parameters.width}
               depth={terrain.geometry.parameters.height}

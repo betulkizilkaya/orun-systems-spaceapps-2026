@@ -1,0 +1,44 @@
+.mission-page .mission-console {
+  overflow-y: auto;
+}
+
+.route-comparison {
+  margin-block: 1rem;
+}
+
+.route-comparison > button {
+  width: 100%;
+}
+
+.route-comparison table {
+  width: 100%;
+  margin-top: .75rem;
+  border-collapse: collapse;
+  color: #dcebed;
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.route-comparison th,
+.route-comparison td {
+  padding: .55rem .2rem;
+  border-bottom: 1px solid #52647675;
+  text-align: start;
+}
+
+.route-comparison thead th {
+  color: #adc0cb;
+  font-weight: 500;
+}
+
+.route-swatch {
+  display: inline-block;
+  width: .75rem;
+  margin-inline-end: .35rem;
+  vertical-align: middle;
+  border-top: 2px solid #83fcef;
+}
+
+.route-swatch-short {
+  border-top: 2px dashed #ffc475;
+}
