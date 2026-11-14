@@ -11,7 +11,7 @@ type JezeroRoute = {
 }
 
 const SCENE_WIDTH = 120
-const SEGMENTS = 160
+const SEGMENTS = 320
 const PIXELS_PER_ROUTE_CELL = 10
 
 async function readRaster(name: 'dem' | 'slope', signal: AbortSignal) {
@@ -19,17 +19,12 @@ async function readRaster(name: 'dem' | 'slope', signal: AbortSignal) {
   const response = await fetch(url, { signal })
 
   if (!response.ok) {
-    throw new Error(
-      `Jezero ${name} dosyası yüklenemedi (HTTP ${response.status}).`,
-    )
+    throw new Error(`Jezero ${name} dosyası yüklenemedi (HTTP ${response.status}).`)
   }
 
   const tiff = await fromArrayBuffer(await response.arrayBuffer())
   const image = await tiff.getImage()
-  const values = await image.readRasters({
-    samples: [0],
-    interleave: true,
-  })
+  const values = await image.readRasters({ samples: [0], interleave: true })
 
   return {
     width: image.getWidth(),
@@ -50,6 +45,12 @@ function matches(first: number[], second: number[]) {
 
 function cellIndex(fraction: number, count: number) {
   return Math.max(0, Math.min(count - 1, Math.floor(fraction * count)))
+}
+
+function rasterSample(fraction: number, size: number) {
+  const pixel = Math.max(0, Math.min(size - 1, fraction * size - 0.5))
+  const first = Math.floor(pixel)
+  return { first, second: Math.min(first + 1, size - 1), weight: pixel - first }
 }
 
 export async function loadJezeroTerrain(signal: AbortSignal) {
@@ -115,13 +116,20 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
 
   const vertices = geometry.attributes.position
   const stride = SEGMENTS + 1
+  const columns = Array.from({ length: stride }, (_, col) =>
+    rasterSample(col / SEGMENTS, dem.width),
+  )
 
   for (let row = 0; row <= SEGMENTS; row += 1) {
-    const rasterRow = cellIndex(row / SEGMENTS, dem.height)
+    const rasterRow = rasterSample(row / SEGMENTS, dem.height)
+    const firstRow = rasterRow.first * dem.width
+    const secondRow = rasterRow.second * dem.width
 
     for (let col = 0; col <= SEGMENTS; col += 1) {
-      const rasterCol = cellIndex(col / SEGMENTS, dem.width)
-      const elevation = dem.values[rasterRow * dem.width + rasterCol]
+      const { first, second, weight } = columns[col]
+      const upper = dem.values[firstRow + first] * (1 - weight) + dem.values[firstRow + second] * weight
+      const lower = dem.values[secondRow + first] * (1 - weight) + dem.values[secondRow + second] * weight
+      const elevation = upper * (1 - rasterRow.weight) + lower * rasterRow.weight
 
       vertices.setY(row * stride + col, (elevation - minimum) * scale)
     }

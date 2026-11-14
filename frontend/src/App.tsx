@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { MOUSE, TOUCH } from 'three'
+import { MOUSE, SRGBColorSpace, TextureLoader, TOUCH, type Texture } from 'three'
 import { GeologyLayer, GEOLOGY_UNITS } from './GeologyLayer'
 import { PanoramaLayer } from './PanoramaLayer'
 import { loadJezeroTerrain } from './jezeroTerrain'
 import { PanoramaDialog, type Panorama } from './PanoramaDialog'
-import { MissionRoute, TerrainFraming, TerrainTarget } from './features/mission/MissionScene'
+import { MissionRoute, TerrainTarget } from './features/mission/MissionScene'
+import { TerrainFraming } from './features/mission/TerrainFraming'
 import { RouteProfile } from './features/mission/RouteProfile'
 import './features/mission/MissionLayout.css'
 import './features/mission/RouteComparison.css'
@@ -67,6 +68,43 @@ function PointMarker({ point, color }: { point: MapPoint; color: string }) {
       <sphereGeometry args={[1.2, 24, 16]} />
       <meshBasicMaterial color={color} />
     </mesh>
+  )
+}
+
+function TerrainMaterial() {
+  const [texture, setTexture] = useState<Texture | null>(null)
+
+  useEffect(() => {
+    let active = true
+    const image = new TextureLoader().load(
+      `${import.meta.env.BASE_URL}mission/jezero-hirise.webp`,
+      (loaded) => {
+        if (!active) {
+          loaded.dispose()
+          return
+        }
+
+        loaded.colorSpace = SRGBColorSpace
+        loaded.anisotropy = 8
+        loaded.needsUpdate = true
+        setTexture(loaded)
+      },
+    )
+
+    return () => {
+      active = false
+      image.dispose()
+    }
+  }, [])
+
+  return (
+    <meshStandardMaterial
+      key={texture ? 'hirise' : 'plain'}
+      map={texture}
+      color={texture ? '#eee0d5' : '#986954'}
+      roughness={1}
+      metalness={0}
+    />
   )
 }
 
@@ -479,9 +517,9 @@ export default function App() {
               fallback={<p>Tarayıcıda harita açılamadı.</p>}
             >
               <color attach="background" args={['#0b111a']} />
-              <ambientLight intensity={0.58} />
-              <directionalLight position={[-45, 35, 25]} color="#ffe3ce" intensity={2.25} />
-              <directionalLight position={[40, 28, -45]} color="#82b8df" intensity={0.48} />
+              <hemisphereLight args={['#f3ece6', '#5c4035', isTopView ? 1.15 : 0.72]} />
+              <directionalLight position={[-65, 29, 38]} color="#ffe8d3" intensity={isTopView ? 1.4 : 2.55} />
+              <directionalLight position={[40, 28, -45]} color="#ced9ea" intensity={0.22} />
 
               {terrain && (
                 <mesh
@@ -493,7 +531,7 @@ export default function App() {
                     pickPoint([event.point.x, event.point.y, event.point.z])
                   }}
                 >
-                  <meshStandardMaterial color="#b76543" roughness={0.95} />
+                  <TerrainMaterial />
                 </mesh>
               )}
 
