@@ -1,0 +1,52 @@
+.route-chart {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  background: #0b141e;
+  color: #adbfce;
+  cursor: crosshair;
+}
+
+.route-chart text {
+  fill: currentColor;
+  font-size: 10px;
+}
+
+.route-chart-grid {
+  fill: none;
+  stroke: #526477;
+}
+
+.route-chart-line {
+  fill: none;
+  stroke: #78eadc;
+  stroke-width: 2;
+}
+
+.route-profile-slider {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: .85rem;
+}
+
+.route-profile-slider input {
+  width: 100%;
+  accent-color: #78eadc;
+}
+
+.mission-console .route-verified {
+  color: #78eadc;
+}
+
+.mission-console .route-chart {
+  border: 1px solid #5577877a;
+  background: linear-gradient(180deg, #102734, #0b141e);
+  touch-action: pan-y;
+}
+
+.mission-console .route-chart-line {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px #64e7db78);
+}

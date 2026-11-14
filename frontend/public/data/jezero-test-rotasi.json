@@ -1,0 +1,1145 @@
+{
+  "crs": "+proj=eqc +lat_ts=0 +R=3396190 +units=m",
+  "demBounds": {
+    "west": 4579240,
+    "south": 1093741,
+    "east": 4580240,
+    "north": 1094741
+  },
+  "pixelConvention": "Zero-based. X increases east, Y increases south.",
+  "routeCellSizeMeters": 10,
+  "distanceMeters": 1087.5882934124309,
+  "maxSlopeDegrees": 33.48540496826172,
+  "start": {
+    "index": 0,
+    "type": "start",
+    "projectedX": 4579308.726473568,
+    "projectedY": 1094427.3511206077,
+    "pixelX": 68,
+    "pixelY": 313,
+    "routeCellColumn": 6,
+    "routeCellRow": 31
+  },
+  "end": {
+    "index": 110,
+    "type": "end",
+    "projectedX": 4579843.177682583,
+    "projectedY": 1093882.866994076,
+    "pixelX": 603,
+    "pixelY": 858,
+    "routeCellColumn": 60,
+    "routeCellRow": 85
+  },
+  "points": [
+    {
+      "index": 0,
+      "type": "start",
+      "projectedX": 4579308.726473568,
+      "projectedY": 1094427.3511206077,
+      "pixelX": 68,
+      "pixelY": 313,
+      "routeCellColumn": 6,
+      "routeCellRow": 31
+    },
+    {
+      "index": 1,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094426,
+      "pixelX": 65,
+      "pixelY": 315,
+      "routeCellColumn": 6,
+      "routeCellRow": 31
+    },
+    {
+      "index": 2,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094416,
+      "pixelX": 65,
+      "pixelY": 325,
+      "routeCellColumn": 6,
+      "routeCellRow": 32
+    },
+    {
+      "index": 3,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094406,
+      "pixelX": 65,
+      "pixelY": 335,
+      "routeCellColumn": 6,
+      "routeCellRow": 33
+    },
+    {
+      "index": 4,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094396,
+      "pixelX": 65,
+      "pixelY": 345,
+      "routeCellColumn": 6,
+      "routeCellRow": 34
+    },
+    {
+      "index": 5,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094386,
+      "pixelX": 65,
+      "pixelY": 355,
+      "routeCellColumn": 6,
+      "routeCellRow": 35
+    },
+    {
+      "index": 6,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094376,
+      "pixelX": 65,
+      "pixelY": 365,
+      "routeCellColumn": 6,
+      "routeCellRow": 36
+    },
+    {
+      "index": 7,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094366,
+      "pixelX": 65,
+      "pixelY": 375,
+      "routeCellColumn": 6,
+      "routeCellRow": 37
+    },
+    {
+      "index": 8,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094356,
+      "pixelX": 65,
+      "pixelY": 385,
+      "routeCellColumn": 6,
+      "routeCellRow": 38
+    },
+    {
+      "index": 9,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094346,
+      "pixelX": 65,
+      "pixelY": 395,
+      "routeCellColumn": 6,
+      "routeCellRow": 39
+    },
+    {
+      "index": 10,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094336,
+      "pixelX": 65,
+      "pixelY": 405,
+      "routeCellColumn": 6,
+      "routeCellRow": 40
+    },
+    {
+      "index": 11,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094326,
+      "pixelX": 65,
+      "pixelY": 415,
+      "routeCellColumn": 6,
+      "routeCellRow": 41
+    },
+    {
+      "index": 12,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094316,
+      "pixelX": 65,
+      "pixelY": 425,
+      "routeCellColumn": 6,
+      "routeCellRow": 42
+    },
+    {
+      "index": 13,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094306,
+      "pixelX": 65,
+      "pixelY": 435,
+      "routeCellColumn": 6,
+      "routeCellRow": 43
+    },
+    {
+      "index": 14,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094296,
+      "pixelX": 65,
+      "pixelY": 445,
+      "routeCellColumn": 6,
+      "routeCellRow": 44
+    },
+    {
+      "index": 15,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094286,
+      "pixelX": 65,
+      "pixelY": 455,
+      "routeCellColumn": 6,
+      "routeCellRow": 45
+    },
+    {
+      "index": 16,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094276,
+      "pixelX": 65,
+      "pixelY": 465,
+      "routeCellColumn": 6,
+      "routeCellRow": 46
+    },
+    {
+      "index": 17,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094266,
+      "pixelX": 65,
+      "pixelY": 475,
+      "routeCellColumn": 6,
+      "routeCellRow": 47
+    },
+    {
+      "index": 18,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094256,
+      "pixelX": 65,
+      "pixelY": 485,
+      "routeCellColumn": 6,
+      "routeCellRow": 48
+    },
+    {
+      "index": 19,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094246,
+      "pixelX": 65,
+      "pixelY": 495,
+      "routeCellColumn": 6,
+      "routeCellRow": 49
+    },
+    {
+      "index": 20,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094236,
+      "pixelX": 65,
+      "pixelY": 505,
+      "routeCellColumn": 6,
+      "routeCellRow": 50
+    },
+    {
+      "index": 21,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094226,
+      "pixelX": 65,
+      "pixelY": 515,
+      "routeCellColumn": 6,
+      "routeCellRow": 51
+    },
+    {
+      "index": 22,
+      "type": "cellCenter",
+      "projectedX": 4579305,
+      "projectedY": 1094216,
+      "pixelX": 65,
+      "pixelY": 525,
+      "routeCellColumn": 6,
+      "routeCellRow": 52
+    },
+    {
+      "index": 23,
+      "type": "cellCenter",
+      "projectedX": 4579315,
+      "projectedY": 1094216,
+      "pixelX": 75,
+      "pixelY": 525,
+      "routeCellColumn": 7,
+      "routeCellRow": 52
+    },
+    {
+      "index": 24,
+      "type": "cellCenter",
+      "projectedX": 4579325,
+      "projectedY": 1094216,
+      "pixelX": 85,
+      "pixelY": 525,
+      "routeCellColumn": 8,
+      "routeCellRow": 52
+    },
+    {
+      "index": 25,
+      "type": "cellCenter",
+      "projectedX": 4579335,
+      "projectedY": 1094216,
+      "pixelX": 94,
+      "pixelY": 525,
+      "routeCellColumn": 9,
+      "routeCellRow": 52
+    },
+    {
+      "index": 26,
+      "type": "cellCenter",
+      "projectedX": 4579345,
+      "projectedY": 1094216,
+      "pixelX": 104,
+      "pixelY": 525,
+      "routeCellColumn": 10,
+      "routeCellRow": 52
+    },
+    {
+      "index": 27,
+      "type": "cellCenter",
+      "projectedX": 4579355,
+      "projectedY": 1094216,
+      "pixelX": 114,
+      "pixelY": 525,
+      "routeCellColumn": 11,
+      "routeCellRow": 52
+    },
+    {
+      "index": 28,
+      "type": "cellCenter",
+      "projectedX": 4579365,
+      "projectedY": 1094216,
+      "pixelX": 125,
+      "pixelY": 525,
+      "routeCellColumn": 12,
+      "routeCellRow": 52
+    },
+    {
+      "index": 29,
+      "type": "cellCenter",
+      "projectedX": 4579375,
+      "projectedY": 1094216,
+      "pixelX": 135,
+      "pixelY": 525,
+      "routeCellColumn": 13,
+      "routeCellRow": 52
+    },
+    {
+      "index": 30,
+      "type": "cellCenter",
+      "projectedX": 4579385,
+      "projectedY": 1094216,
+      "pixelX": 145,
+      "pixelY": 525,
+      "routeCellColumn": 14,
+      "routeCellRow": 52
+    },
+    {
+      "index": 31,
+      "type": "cellCenter",
+      "projectedX": 4579395,
+      "projectedY": 1094216,
+      "pixelX": 155,
+      "pixelY": 525,
+      "routeCellColumn": 15,
+      "routeCellRow": 52
+    },
+    {
+      "index": 32,
+      "type": "cellCenter",
+      "projectedX": 4579405,
+      "projectedY": 1094216,
+      "pixelX": 165,
+      "pixelY": 525,
+      "routeCellColumn": 16,
+      "routeCellRow": 52
+    },
+    {
+      "index": 33,
+      "type": "cellCenter",
+      "projectedX": 4579415,
+      "projectedY": 1094216,
+      "pixelX": 175,
+      "pixelY": 525,
+      "routeCellColumn": 17,
+      "routeCellRow": 52
+    },
+    {
+      "index": 34,
+      "type": "cellCenter",
+      "projectedX": 4579425,
+      "projectedY": 1094216,
+      "pixelX": 185,
+      "pixelY": 525,
+      "routeCellColumn": 18,
+      "routeCellRow": 52
+    },
+    {
+      "index": 35,
+      "type": "cellCenter",
+      "projectedX": 4579435,
+      "projectedY": 1094216,
+      "pixelX": 195,
+      "pixelY": 525,
+      "routeCellColumn": 19,
+      "routeCellRow": 52
+    },
+    {
+      "index": 36,
+      "type": "cellCenter",
+      "projectedX": 4579445,
+      "projectedY": 1094216,
+      "pixelX": 204,
+      "pixelY": 525,
+      "routeCellColumn": 20,
+      "routeCellRow": 52
+    },
+    {
+      "index": 37,
+      "type": "cellCenter",
+      "projectedX": 4579455,
+      "projectedY": 1094216,
+      "pixelX": 214,
+      "pixelY": 525,
+      "routeCellColumn": 21,
+      "routeCellRow": 52
+    },
+    {
+      "index": 38,
+      "type": "cellCenter",
+      "projectedX": 4579465,
+      "projectedY": 1094216,
+      "pixelX": 224,
+      "pixelY": 525,
+      "routeCellColumn": 22,
+      "routeCellRow": 52
+    },
+    {
+      "index": 39,
+      "type": "cellCenter",
+      "projectedX": 4579475,
+      "projectedY": 1094216,
+      "pixelX": 235,
+      "pixelY": 525,
+      "routeCellColumn": 23,
+      "routeCellRow": 52
+    },
+    {
+      "index": 40,
+      "type": "cellCenter",
+      "projectedX": 4579485,
+      "projectedY": 1094216,
+      "pixelX": 245,
+      "pixelY": 525,
+      "routeCellColumn": 24,
+      "routeCellRow": 52
+    },
+    {
+      "index": 41,
+      "type": "cellCenter",
+      "projectedX": 4579495,
+      "projectedY": 1094216,
+      "pixelX": 255,
+      "pixelY": 525,
+      "routeCellColumn": 25,
+      "routeCellRow": 52
+    },
+    {
+      "index": 42,
+      "type": "cellCenter",
+      "projectedX": 4579505,
+      "projectedY": 1094216,
+      "pixelX": 265,
+      "pixelY": 525,
+      "routeCellColumn": 26,
+      "routeCellRow": 52
+    },
+    {
+      "index": 43,
+      "type": "cellCenter",
+      "projectedX": 4579515,
+      "projectedY": 1094216,
+      "pixelX": 275,
+      "pixelY": 525,
+      "routeCellColumn": 27,
+      "routeCellRow": 52
+    },
+    {
+      "index": 44,
+      "type": "cellCenter",
+      "projectedX": 4579525,
+      "projectedY": 1094216,
+      "pixelX": 285,
+      "pixelY": 525,
+      "routeCellColumn": 28,
+      "routeCellRow": 52
+    },
+    {
+      "index": 45,
+      "type": "cellCenter",
+      "projectedX": 4579535,
+      "projectedY": 1094216,
+      "pixelX": 295,
+      "pixelY": 525,
+      "routeCellColumn": 29,
+      "routeCellRow": 52
+    },
+    {
+      "index": 46,
+      "type": "cellCenter",
+      "projectedX": 4579545,
+      "projectedY": 1094216,
+      "pixelX": 305,
+      "pixelY": 525,
+      "routeCellColumn": 30,
+      "routeCellRow": 52
+    },
+    {
+      "index": 47,
+      "type": "cellCenter",
+      "projectedX": 4579555,
+      "projectedY": 1094216,
+      "pixelX": 315,
+      "pixelY": 525,
+      "routeCellColumn": 31,
+      "routeCellRow": 52
+    },
+    {
+      "index": 48,
+      "type": "cellCenter",
+      "projectedX": 4579565,
+      "projectedY": 1094216,
+      "pixelX": 325,
+      "pixelY": 525,
+      "routeCellColumn": 32,
+      "routeCellRow": 52
+    },
+    {
+      "index": 49,
+      "type": "cellCenter",
+      "projectedX": 4579575,
+      "projectedY": 1094216,
+      "pixelX": 335,
+      "pixelY": 525,
+      "routeCellColumn": 33,
+      "routeCellRow": 52
+    },
+    {
+      "index": 50,
+      "type": "cellCenter",
+      "projectedX": 4579585,
+      "projectedY": 1094216,
+      "pixelX": 345,
+      "pixelY": 525,
+      "routeCellColumn": 34,
+      "routeCellRow": 52
+    },
+    {
+      "index": 51,
+      "type": "cellCenter",
+      "projectedX": 4579595,
+      "projectedY": 1094216,
+      "pixelX": 355,
+      "pixelY": 525,
+      "routeCellColumn": 35,
+      "routeCellRow": 52
+    },
+    {
+      "index": 52,
+      "type": "cellCenter",
+      "projectedX": 4579605,
+      "projectedY": 1094216,
+      "pixelX": 365,
+      "pixelY": 525,
+      "routeCellColumn": 36,
+      "routeCellRow": 52
+    },
+    {
+      "index": 53,
+      "type": "cellCenter",
+      "projectedX": 4579615,
+      "projectedY": 1094216,
+      "pixelX": 375,
+      "pixelY": 525,
+      "routeCellColumn": 37,
+      "routeCellRow": 52
+    },
+    {
+      "index": 54,
+      "type": "cellCenter",
+      "projectedX": 4579625,
+      "projectedY": 1094216,
+      "pixelX": 385,
+      "pixelY": 525,
+      "routeCellColumn": 38,
+      "routeCellRow": 52
+    },
+    {
+      "index": 55,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094216,
+      "pixelX": 395,
+      "pixelY": 525,
+      "routeCellColumn": 39,
+      "routeCellRow": 52
+    },
+    {
+      "index": 56,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094206,
+      "pixelX": 395,
+      "pixelY": 535,
+      "routeCellColumn": 39,
+      "routeCellRow": 53
+    },
+    {
+      "index": 57,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094196,
+      "pixelX": 395,
+      "pixelY": 545,
+      "routeCellColumn": 39,
+      "routeCellRow": 54
+    },
+    {
+      "index": 58,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094186,
+      "pixelX": 395,
+      "pixelY": 555,
+      "routeCellColumn": 39,
+      "routeCellRow": 55
+    },
+    {
+      "index": 59,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094176,
+      "pixelX": 395,
+      "pixelY": 565,
+      "routeCellColumn": 39,
+      "routeCellRow": 56
+    },
+    {
+      "index": 60,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094166,
+      "pixelX": 395,
+      "pixelY": 575,
+      "routeCellColumn": 39,
+      "routeCellRow": 57
+    },
+    {
+      "index": 61,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094156,
+      "pixelX": 395,
+      "pixelY": 585,
+      "routeCellColumn": 39,
+      "routeCellRow": 58
+    },
+    {
+      "index": 62,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094146,
+      "pixelX": 395,
+      "pixelY": 595,
+      "routeCellColumn": 39,
+      "routeCellRow": 59
+    },
+    {
+      "index": 63,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094136,
+      "pixelX": 395,
+      "pixelY": 605,
+      "routeCellColumn": 39,
+      "routeCellRow": 60
+    },
+    {
+      "index": 64,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094126,
+      "pixelX": 395,
+      "pixelY": 615,
+      "routeCellColumn": 39,
+      "routeCellRow": 61
+    },
+    {
+      "index": 65,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094116,
+      "pixelX": 395,
+      "pixelY": 625,
+      "routeCellColumn": 39,
+      "routeCellRow": 62
+    },
+    {
+      "index": 66,
+      "type": "cellCenter",
+      "projectedX": 4579635,
+      "projectedY": 1094106,
+      "pixelX": 395,
+      "pixelY": 635,
+      "routeCellColumn": 39,
+      "routeCellRow": 63
+    },
+    {
+      "index": 67,
+      "type": "cellCenter",
+      "projectedX": 4579645,
+      "projectedY": 1094106,
+      "pixelX": 405,
+      "pixelY": 635,
+      "routeCellColumn": 40,
+      "routeCellRow": 63
+    },
+    {
+      "index": 68,
+      "type": "cellCenter",
+      "projectedX": 4579645,
+      "projectedY": 1094096,
+      "pixelX": 405,
+      "pixelY": 645,
+      "routeCellColumn": 40,
+      "routeCellRow": 64
+    },
+    {
+      "index": 69,
+      "type": "cellCenter",
+      "projectedX": 4579655,
+      "projectedY": 1094096,
+      "pixelX": 415,
+      "pixelY": 645,
+      "routeCellColumn": 41,
+      "routeCellRow": 64
+    },
+    {
+      "index": 70,
+      "type": "cellCenter",
+      "projectedX": 4579665,
+      "projectedY": 1094096,
+      "pixelX": 425,
+      "pixelY": 645,
+      "routeCellColumn": 42,
+      "routeCellRow": 64
+    },
+    {
+      "index": 71,
+      "type": "cellCenter",
+      "projectedX": 4579675,
+      "projectedY": 1094096,
+      "pixelX": 435,
+      "pixelY": 645,
+      "routeCellColumn": 43,
+      "routeCellRow": 64
+    },
+    {
+      "index": 72,
+      "type": "cellCenter",
+      "projectedX": 4579685,
+      "projectedY": 1094096,
+      "pixelX": 445,
+      "pixelY": 645,
+      "routeCellColumn": 44,
+      "routeCellRow": 64
+    },
+    {
+      "index": 73,
+      "type": "cellCenter",
+      "projectedX": 4579695,
+      "projectedY": 1094096,
+      "pixelX": 455,
+      "pixelY": 645,
+      "routeCellColumn": 45,
+      "routeCellRow": 64
+    },
+    {
+      "index": 74,
+      "type": "cellCenter",
+      "projectedX": 4579705,
+      "projectedY": 1094096,
+      "pixelX": 465,
+      "pixelY": 645,
+      "routeCellColumn": 46,
+      "routeCellRow": 64
+    },
+    {
+      "index": 75,
+      "type": "cellCenter",
+      "projectedX": 4579705,
+      "projectedY": 1094086,
+      "pixelX": 465,
+      "pixelY": 655,
+      "routeCellColumn": 46,
+      "routeCellRow": 65
+    },
+    {
+      "index": 76,
+      "type": "cellCenter",
+      "projectedX": 4579705,
+      "projectedY": 1094076,
+      "pixelX": 465,
+      "pixelY": 665,
+      "routeCellColumn": 46,
+      "routeCellRow": 66
+    },
+    {
+      "index": 77,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094076,
+      "pixelX": 475,
+      "pixelY": 665,
+      "routeCellColumn": 47,
+      "routeCellRow": 66
+    },
+    {
+      "index": 78,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094066,
+      "pixelX": 475,
+      "pixelY": 675,
+      "routeCellColumn": 47,
+      "routeCellRow": 67
+    },
+    {
+      "index": 79,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094056,
+      "pixelX": 475,
+      "pixelY": 685,
+      "routeCellColumn": 47,
+      "routeCellRow": 68
+    },
+    {
+      "index": 80,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094046,
+      "pixelX": 475,
+      "pixelY": 695,
+      "routeCellColumn": 47,
+      "routeCellRow": 69
+    },
+    {
+      "index": 81,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094036,
+      "pixelX": 475,
+      "pixelY": 705,
+      "routeCellColumn": 47,
+      "routeCellRow": 70
+    },
+    {
+      "index": 82,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094026,
+      "pixelX": 475,
+      "pixelY": 715,
+      "routeCellColumn": 47,
+      "routeCellRow": 71
+    },
+    {
+      "index": 83,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094016,
+      "pixelX": 475,
+      "pixelY": 725,
+      "routeCellColumn": 47,
+      "routeCellRow": 72
+    },
+    {
+      "index": 84,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1094006,
+      "pixelX": 475,
+      "pixelY": 735,
+      "routeCellColumn": 47,
+      "routeCellRow": 73
+    },
+    {
+      "index": 85,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1093996,
+      "pixelX": 475,
+      "pixelY": 745,
+      "routeCellColumn": 47,
+      "routeCellRow": 74
+    },
+    {
+      "index": 86,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1093986,
+      "pixelX": 475,
+      "pixelY": 755,
+      "routeCellColumn": 47,
+      "routeCellRow": 75
+    },
+    {
+      "index": 87,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1093976,
+      "pixelX": 475,
+      "pixelY": 765,
+      "routeCellColumn": 47,
+      "routeCellRow": 76
+    },
+    {
+      "index": 88,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1093966,
+      "pixelX": 475,
+      "pixelY": 775,
+      "routeCellColumn": 47,
+      "routeCellRow": 77
+    },
+    {
+      "index": 89,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1093956,
+      "pixelX": 475,
+      "pixelY": 785,
+      "routeCellColumn": 47,
+      "routeCellRow": 78
+    },
+    {
+      "index": 90,
+      "type": "cellCenter",
+      "projectedX": 4579715,
+      "projectedY": 1093946,
+      "pixelX": 475,
+      "pixelY": 795,
+      "routeCellColumn": 47,
+      "routeCellRow": 79
+    },
+    {
+      "index": 91,
+      "type": "cellCenter",
+      "projectedX": 4579725,
+      "projectedY": 1093946,
+      "pixelX": 485,
+      "pixelY": 795,
+      "routeCellColumn": 48,
+      "routeCellRow": 79
+    },
+    {
+      "index": 92,
+      "type": "cellCenter",
+      "projectedX": 4579735,
+      "projectedY": 1093946,
+      "pixelX": 495,
+      "pixelY": 795,
+      "routeCellColumn": 49,
+      "routeCellRow": 79
+    },
+    {
+      "index": 93,
+      "type": "cellCenter",
+      "projectedX": 4579735,
+      "projectedY": 1093936,
+      "pixelX": 495,
+      "pixelY": 805,
+      "routeCellColumn": 49,
+      "routeCellRow": 80
+    },
+    {
+      "index": 94,
+      "type": "cellCenter",
+      "projectedX": 4579745,
+      "projectedY": 1093936,
+      "pixelX": 505,
+      "pixelY": 805,
+      "routeCellColumn": 50,
+      "routeCellRow": 80
+    },
+    {
+      "index": 95,
+      "type": "cellCenter",
+      "projectedX": 4579745,
+      "projectedY": 1093926,
+      "pixelX": 505,
+      "pixelY": 815,
+      "routeCellColumn": 50,
+      "routeCellRow": 81
+    },
+    {
+      "index": 96,
+      "type": "cellCenter",
+      "projectedX": 4579745,
+      "projectedY": 1093916,
+      "pixelX": 505,
+      "pixelY": 825,
+      "routeCellColumn": 50,
+      "routeCellRow": 82
+    },
+    {
+      "index": 97,
+      "type": "cellCenter",
+      "projectedX": 4579755,
+      "projectedY": 1093916,
+      "pixelX": 515,
+      "pixelY": 825,
+      "routeCellColumn": 51,
+      "routeCellRow": 82
+    },
+    {
+      "index": 98,
+      "type": "cellCenter",
+      "projectedX": 4579755,
+      "projectedY": 1093906,
+      "pixelX": 515,
+      "pixelY": 835,
+      "routeCellColumn": 51,
+      "routeCellRow": 83
+    },
+    {
+      "index": 99,
+      "type": "cellCenter",
+      "projectedX": 4579755,
+      "projectedY": 1093896,
+      "pixelX": 515,
+      "pixelY": 845,
+      "routeCellColumn": 51,
+      "routeCellRow": 84
+    },
+    {
+      "index": 100,
+      "type": "cellCenter",
+      "projectedX": 4579765,
+      "projectedY": 1093896,
+      "pixelX": 525,
+      "pixelY": 845,
+      "routeCellColumn": 52,
+      "routeCellRow": 84
+    },
+    {
+      "index": 101,
+      "type": "cellCenter",
+      "projectedX": 4579775,
+      "projectedY": 1093896,
+      "pixelX": 535,
+      "pixelY": 845,
+      "routeCellColumn": 53,
+      "routeCellRow": 84
+    },
+    {
+      "index": 102,
+      "type": "cellCenter",
+      "projectedX": 4579785,
+      "projectedY": 1093896,
+      "pixelX": 545,
+      "pixelY": 845,
+      "routeCellColumn": 54,
+      "routeCellRow": 84
+    },
+    {
+      "index": 103,
+      "type": "cellCenter",
+      "projectedX": 4579795,
+      "projectedY": 1093896,
+      "pixelX": 555,
+      "pixelY": 845,
+      "routeCellColumn": 55,
+      "routeCellRow": 84
+    },
+    {
+      "index": 104,
+      "type": "cellCenter",
+      "projectedX": 4579805,
+      "projectedY": 1093896,
+      "pixelX": 565,
+      "pixelY": 845,
+      "routeCellColumn": 56,
+      "routeCellRow": 84
+    },
+    {
+      "index": 105,
+      "type": "cellCenter",
+      "projectedX": 4579815,
+      "projectedY": 1093896,
+      "pixelX": 575,
+      "pixelY": 845,
+      "routeCellColumn": 57,
+      "routeCellRow": 84
+    },
+    {
+      "index": 106,
+      "type": "cellCenter",
+      "projectedX": 4579825,
+      "projectedY": 1093896,
+      "pixelX": 585,
+      "pixelY": 845,
+      "routeCellColumn": 58,
+      "routeCellRow": 84
+    },
+    {
+      "index": 107,
+      "type": "cellCenter",
+      "projectedX": 4579835,
+      "projectedY": 1093896,
+      "pixelX": 595,
+      "pixelY": 845,
+      "routeCellColumn": 59,
+      "routeCellRow": 84
+    },
+    {
+      "index": 108,
+      "type": "cellCenter",
+      "projectedX": 4579845,
+      "projectedY": 1093896,
+      "pixelX": 605,
+      "pixelY": 845,
+      "routeCellColumn": 60,
+      "routeCellRow": 84
+    },
+    {
+      "index": 109,
+      "type": "cellCenter",
+      "projectedX": 4579845,
+      "projectedY": 1093886,
+      "pixelX": 605,
+      "pixelY": 855,
+      "routeCellColumn": 60,
+      "routeCellRow": 85
+    },
+    {
+      "index": 110,
+      "type": "end",
+      "projectedX": 4579843.177682583,
+      "projectedY": 1093882.866994076,
+      "pixelX": 603,
+      "pixelY": 858,
+      "routeCellColumn": 60,
+      "routeCellRow": 85
+    }
+  ]
+}
