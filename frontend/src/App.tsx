@@ -33,6 +33,25 @@ const slopeFormat = new Intl.NumberFormat('tr-TR', {
   maximumFractionDigits: 1,
 })
 
+function describeRouteComparison(
+  weighted: { distanceMeters: number; maxSlope: number },
+  distanceFocused: { distanceMeters: number; maxSlope: number },
+) {
+  const distanceDifference =
+    Math.round(weighted.distanceMeters) - Math.round(distanceFocused.distanceMeters)
+  const slopeDifference =
+    Math.round(weighted.maxSlope * 10) - Math.round(distanceFocused.maxSlope * 10)
+
+  const distanceSummary = distanceDifference === 0
+    ? 'Yatay mesafeler metreye yuvarlandığında eşit.'
+    : `Eğim ağırlıklı rota yatayda ${distanceFormat.format(Math.abs(distanceDifference))} m daha ${distanceDifference > 0 ? 'uzun' : 'kısa'}.`
+  const slopeSummary = slopeDifference === 0
+    ? 'Maksimum hücre eğimleri gösterilen hassasiyette eşit.'
+    : `Eğim ağırlıklı rotanın maksimum hücre eğimi ${slopeFormat.format(Math.abs(slopeDifference) / 10)}° daha ${slopeDifference > 0 ? 'yüksek' : 'düşük'}.`
+
+  return `${distanceSummary} ${slopeSummary}`
+}
+
 function overlayPosition([x, y, z]: MapPoint): MapPoint {
   return [x, y + MARKER_OFFSET, z]
 }
@@ -462,24 +481,27 @@ export default function App() {
             <section className="route-comparison" aria-label="Rota karşılaştırması">
               <button type="button" aria-pressed={compare}
                 onClick={() => setCompare((visible) => !visible)}>
-                {compare ? 'Karşılaştırmayı kapat' : 'En kısa rotayla karşılaştır'}
+                {compare ? 'Karşılaştırmayı kapat' : 'Rotaları karşılaştır'}
               </button>
               {compare && !grid && (
                 <p role="status">{gridError ? 'Eğim verisi okunamadı.' : 'Eğim verisi yükleniyor…'}</p>
               )}
               {compare && grid && !alternative && <p role="status">Alternatif rota oluşturulamadı.</p>}
               {alternative && (
-                <table>
-                  <thead><tr><th scope="col">Rota</th><th scope="col">Yatay mesafe</th><th scope="col">Maks. eğim</th></tr></thead>
-                  <tbody>
-                    <tr><th scope="row"><i className="route-swatch route-swatch-weighted" />Eğim ağırlıklı</th>
-                      <td>{distanceFormat.format(route.distanceMeters)} m</td>
-                      <td>{slopeFormat.format(route.maxSlope)}°</td></tr>
-                    <tr><th scope="row"><i className="route-swatch route-swatch-short" />En kısa</th>
-                      <td>{distanceFormat.format(alternative.distanceMeters)} m</td>
-                      <td>{slopeFormat.format(alternative.maxSlope)}°</td></tr>
-                  </tbody>
-                </table>
+                <>
+                  <table>
+                    <thead><tr><th scope="col">Rota</th><th scope="col">Yatay mesafe</th><th scope="col">Maks. eğim</th></tr></thead>
+                    <tbody>
+                      <tr><th scope="row"><i className="route-swatch route-swatch-weighted" />Eğim ağırlıklı</th>
+                        <td>{distanceFormat.format(route.distanceMeters)} m</td>
+                        <td>{slopeFormat.format(route.maxSlope)}°</td></tr>
+                      <tr><th scope="row"><i className="route-swatch route-swatch-short" />Mesafe odaklı</th>
+                        <td>{distanceFormat.format(alternative.distanceMeters)} m</td>
+                        <td>{slopeFormat.format(alternative.maxSlope)}°</td></tr>
+                    </tbody>
+                  </table>
+                  <p role="status">{describeRouteComparison(route, alternative)}</p>
+                </>
               )}
             </section>
           )}
