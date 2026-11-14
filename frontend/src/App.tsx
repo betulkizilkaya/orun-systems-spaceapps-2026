@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { MOUSE, PlaneGeometry, TOUCH } from 'three'
+import { getSampleElevation } from './sampleTerrain'
 
 type MapPoint = [number, number, number]
 type PointKind = 'start' | 'end'
@@ -17,16 +18,11 @@ function SampleTerrain({ onPick }: { onPick: (point: MapPoint) => void }) {
     const vertices = terrain.attributes.position
 
     for (let index = 0; index < vertices.count; index += 1) {
-      const x = vertices.getX(index)
-      const z = vertices.getZ(index)
-      const distance = Math.hypot(x + 6, z - 4)
+  const x = vertices.getX(index)
+  const z = vertices.getZ(index)
 
-      const craterFloor = -8 * Math.exp(-((distance / 18) ** 2))
-      const craterRim = 5 * Math.exp(-(((distance - 24) / 5) ** 2))
-      const ridges = 1.6 * Math.sin(x * 0.12) * Math.cos(z * 0.1)
-
-      vertices.setY(index, craterFloor + craterRim + ridges)
-    }
+  vertices.setY(index, getSampleElevation(x, z))
+}
 
     terrain.computeVertexNormals()
     return terrain
