@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { MOUSE, PlaneGeometry, TOUCH } from 'three'
+import { getSampleRoute } from './sampleRoute'
 import { getSampleElevation } from './sampleTerrain'
 
 type MapPoint = [number, number, number]
@@ -18,11 +19,11 @@ function SampleTerrain({ onPick }: { onPick: (point: MapPoint) => void }) {
     const vertices = terrain.attributes.position
 
     for (let index = 0; index < vertices.count; index += 1) {
-  const x = vertices.getX(index)
-  const z = vertices.getZ(index)
+      const x = vertices.getX(index)
+      const z = vertices.getZ(index)
 
-  vertices.setY(index, getSampleElevation(x, z))
-}
+      vertices.setY(index, getSampleElevation(x, z))
+    }
 
     terrain.computeVertexNormals()
     return terrain
@@ -67,6 +68,11 @@ export default function App() {
   const [end, setEnd] = useState<MapPoint | null>(null)
 
   const isTopView = view === '2d'
+  const routePoints = useMemo(() => {
+    if (!start || !end) return null
+
+    return getSampleRoute(start, end)?.map(markerPosition) ?? null
+  }, [start, end])
 
   function pickPoint(point: MapPoint) {
     if (selecting === null) return
@@ -95,7 +101,9 @@ export default function App() {
   } else if (selecting === 'end') {
     status = 'Bitiş noktasını yerleştirmek için araziye tıkla.'
   } else if (start && end) {
-    status = 'Kesikli çizgi, iki nokta arasındaki düz bağlantıyı gösterir.'
+    status = routePoints
+      ? 'Örnek arazide eğim ve mesafeye göre rota hesaplandı.'
+      : 'Bu iki nokta arasında rota bulunamadı.'
   } else if (start) {
     status = 'Başlangıç yerleştirildi. Şimdi bitiş noktasını seç.'
   } else if (end) {
@@ -114,7 +122,11 @@ export default function App() {
 
       <section
         className="map-viewport"
-        aria-label={isTopView ? 'Örnek arazinin üstten görünümü' : 'Üç boyutlu örnek Mars arazisi'}
+        aria-label={
+          isTopView
+            ? 'Örnek arazinin üstten görünümü'
+            : 'Üç boyutlu örnek Mars arazisi'
+        }
       >
         <Canvas
           key={view}
@@ -147,19 +159,16 @@ export default function App() {
           {start && <PointMarker point={start} color="#75e7c8" />}
           {end && <PointMarker point={end} color="#ffc475" />}
 
-          {start && end && (
-  <Line
-    points={[markerPosition(start), markerPosition(end)]}
-    color="#f4eee8"
-    lineWidth={2}
-    dashed
-    dashSize={2}
-    gapSize={1}
-    renderOrder={10}
-    depthTest={false}
-    depthWrite={false}
-  />
-)}
+          {routePoints && (
+            <Line
+              points={routePoints}
+              color="#f4eee8"
+              lineWidth={2.5}
+              renderOrder={10}
+              depthTest={false}
+              depthWrite={false}
+            />
+          )}
 
           {isTopView ? (
             <OrbitControls
