@@ -3,7 +3,9 @@ import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { MOUSE, TOUCH } from 'three'
 import { GeologyLayer, GEOLOGY_UNITS } from './GeologyLayer'
+import { PanoramaLayer } from './PanoramaLayer'
 import { loadJezeroTerrain } from './jezeroTerrain'
+import { PanoramaDialog, type Panorama } from './PanoramaDialog'
 
 type MapPoint = [x: number, y: number, z: number]
 type PointKind = 'start' | 'end'
@@ -40,6 +42,9 @@ export default function App() {
   const [terrainError, setTerrainError] = useState<string | null>(null)
   const [showGeology, setShowGeology] = useState(false)
   const [geologyError, setGeologyError] = useState<string | null>(null)
+  const [showPanoramas, setShowPanoramas] = useState(false)
+  const [panoramaError, setPanoramaError] = useState<string | null>(null)
+  const [activePanorama, setActivePanorama] = useState<Panorama | null>(null)
 
   const isTopView = view === '2d'
 
@@ -105,6 +110,11 @@ export default function App() {
     setShowGeology((visible) => !visible)
   }
 
+  function togglePanoramas() {
+    setPanoramaError(null)
+    setShowPanoramas((visible) => !visible)
+  }
+
   let status = isTopView
     ? 'Haritayı kaydırmak için sürükle. Yakınlaşmak için tekerleği kullan.'
     : 'Araziyi döndürmek için sürükle. Yakınlaşmak için tekerleği kullan.'
@@ -161,7 +171,7 @@ export default function App() {
                 }
           }
           dpr={[1, 1.5]}
-          fallback={<p>Tarayıcıda 3B harita açılamadı.</p>}
+          fallback={<p>Tarayıcıda harita açılamadı.</p>}
         >
           <color attach="background" args={['#101318']} />
           <ambientLight intensity={0.7} />
@@ -183,6 +193,14 @@ export default function App() {
 
           {terrain && showGeology && (
             <GeologyLayer terrain={terrain} onError={setGeologyError} />
+          )}
+
+          {terrain && showPanoramas && (
+            <PanoramaLayer
+             terrain={terrain}
+              onError={setPanoramaError}
+           onSelect={setActivePanorama}
+            />
           )}
 
           {start && <PointMarker point={start} color="#75e7c8" />}
@@ -251,6 +269,15 @@ export default function App() {
           Jeoloji
         </button>
 
+        <button
+          type="button"
+          aria-pressed={showPanoramas}
+          disabled={!terrain}
+          onClick={togglePanoramas}
+        >
+          Panoramalar
+        </button>
+
         {!isTopView && <span>Dikey ölçek 1×</span>}
 
         <button
@@ -283,8 +310,8 @@ export default function App() {
           {terrainError ?? (terrain ? status : 'Jezero arazisi yükleniyor…')}
         </span>
 
-        {showGeology && (
-          geologyError ? (
+        {showGeology &&
+          (geologyError ? (
             <span role="alert">{geologyError}</span>
           ) : (
             <span>
@@ -296,9 +323,21 @@ export default function App() {
                 {GEOLOGY_UNITS.Nnp1.label}
               </span>
             </span>
-          )
-        )}
+          ))}
+
+        {showPanoramas &&
+          (panoramaError ? (
+            <span role="alert">{panoramaError}</span>
+          ) : (
+            <span>360° pinler yaklaşık çekim konumlarını gösterir.</span>
+          ))}
       </div>
+      {activePanorama && (
+  <PanoramaDialog
+    panorama={activePanorama}
+    onClose={() => setActivePanorama(null)}
+  />
+)}
     </main>
   )
 }

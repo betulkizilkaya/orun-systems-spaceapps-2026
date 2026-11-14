@@ -1,0 +1,78 @@
+.panorama-dialog {
+  box-sizing: border-box;
+  width: min(1120px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: auto;
+  color: #f4eee8;
+  background: #14171c;
+  border: 1px solid #383f49;
+  border-radius: 16px;
+}
+
+.panorama-dialog::backdrop {
+  background: rgb(6 8 11 / 82%);
+}
+
+.panorama-header,
+.panorama-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 16px 20px;
+}
+
+.panorama-header h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.8vw, 1.6rem);
+}
+
+.panorama-header p {
+  margin: 6px 0 0;
+  color: #c4ccd6;
+  font-size: 0.85rem;
+}
+
+.panorama-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panorama-actions form {
+  margin: 0;
+}
+
+.panorama-actions a,
+.panorama-actions button {
+  display: inline-block;
+  padding: 8px 12px;
+  color: #f4eee8;
+  background: #21262e;
+  border: 1px solid #4a5360;
+  border-radius: 8px;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.panorama-actions :focus-visible {
+  outline: 2px solid #79e2ff;
+  outline-offset: 3px;
+}
+
+.panorama-frame {
+  display: block;
+  width: 100%;
+  height: min(62dvh, 640px);
+  border: 0;
+  background: #090c10;
+}
+
+.panorama-credit {
+  color: #c4ccd6;
+  font-size: 0.8rem;
+}

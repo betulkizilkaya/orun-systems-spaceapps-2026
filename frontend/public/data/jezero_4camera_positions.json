@@ -1,0 +1,50 @@
+[
+  {
+    "id": "broom-point",
+    "panoramaNumber": 44,
+    "longitude": 77.259,
+    "latitude": 18.462,
+    "projectedX": 4579503.856,
+    "projectedY": 1094329.466,
+    "pixelX": 263,
+    "pixelY": 411,
+    "elevation": -1910.51,
+    "coordinateAccuracy": "approximate"
+  },
+  {
+    "id": "south-arm",
+    "panoramaNumber": 43,
+    "longitude": 77.262,
+    "latitude": 18.46,
+    "projectedX": 4579681.68,
+    "projectedY": 1094210.916,
+    "pixelX": 441,
+    "pixelY": 530,
+    "elevation": -1854.793,
+    "coordinateAccuracy": "approximate"
+  },
+  {
+    "id": "trout-river-shallow-bay",
+    "panoramaNumber": 42,
+    "longitude": 77.265,
+    "latitude": 18.462,
+    "projectedX": 4579859.504,
+    "projectedY": 1094329.466,
+    "pixelX": 619,
+    "pixelY": 411,
+    "elevation": -1814.625,
+    "coordinateAccuracy": "approximate"
+  },
+  {
+    "id": "lookout-hill",
+    "panoramaNumber": 41,
+    "longitude": 77.267,
+    "latitude": 18.459,
+    "projectedX": 4579978.054,
+    "projectedY": 1094151.642,
+    "pixelX": 738,
+    "pixelY": 589,
+    "elevation": -1794.467,
+    "coordinateAccuracy": "approximate"
+  }
+]
