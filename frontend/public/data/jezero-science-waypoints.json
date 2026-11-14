@@ -1,0 +1,71 @@
+
+{
+  "metadata": {
+    "mission": "Orun Systems | Jezero Crater",
+    "type": "simulated_science_waypoints",
+    "coordinateSystem": "Mars Equirectangular (EQC)",
+    "units": {
+      "distance": "meters",
+      "elevation": "meters",
+      "slope": "degrees"
+    },
+    "sources": [
+      "jezero-rover-playback.json",
+      "jezero-geology.json"
+    ],
+    "disclaimer": "Illustrative science objectives based on modeled terrain and mapped geology. Waypoints are not verified field sampling sites or certified safe locations."
+  },
+  "waypoints": [
+    {
+      "id": "WP-01",
+      "name": "Surface Reconnaissance",
+      "frameIndex": 100,
+      "projectedX": 4579305.0,
+      "projectedY": 1094230.0395,
+      "localX": 65.0,
+      "localY": 489.0395,
+      "distanceM": 199.9243,
+      "elevationM": -1958.6002,
+      "slopeDeg": 10.273,
+      "geologicalUnit": "cr",
+      "geologicalUnitName": "Crater rim unit",
+      "scienceObjective": "Document visible surface textures and identify candidate rock features for closer inspection.",
+      "observationTask": "Capture contextual imagery and record visible surface characteristics.",
+      "status": "planned"
+    },
+    {
+      "id": "WP-02",
+      "name": "Terrain Gradient Survey",
+      "frameIndex": 270,
+      "projectedX": 4579630.8318,
+      "projectedY": 1094216.0,
+      "localX": 390.8318,
+      "localY": 475.0,
+      "distanceM": 539.7957,
+      "elevationM": -1867.2047,
+      "slopeDeg": 13.4817,
+      "geologicalUnit": "cr",
+      "geologicalUnitName": "Crater rim unit",
+      "scienceObjective": "Examine modeled terrain gradients and assess visible surface conditions.",
+      "observationTask": "Record DEM-derived slope and capture imagery for terrain interpretation.",
+      "status": "planned"
+    },
+    {
+      "id": "WP-03",
+      "name": "Geomorphology Observation",
+      "frameIndex": 440,
+      "projectedX": 4579715.0,
+      "projectedY": 1093960.2969,
+      "localX": 475.0,
+      "localY": 219.2969,
+      "distanceM": 879.667,
+      "elevationM": -1790.6871,
+      "slopeDeg": 16.042,
+      "geologicalUnit": "cr",
+      "geologicalUnitName": "Crater rim unit",
+      "scienceObjective": "Observe landform characteristics along a comparatively steeper section of the simulated route.",
+      "observationTask": "Document visible terrain morphology and compare observations with modeled elevation and slope.",
+      "status": "planned"
+    }
+  ]
+}
