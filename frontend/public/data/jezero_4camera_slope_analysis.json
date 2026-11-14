@@ -1,0 +1,62 @@
+{
+  "source": "jezero_4camera_slope_1km.tif",
+  "units": "degrees",
+  "classificationNote": "Descriptive slope bins, not validated rover safety thresholds.",
+  "statistics": {
+    "min": 0.01441873423755169,
+    "mean": 15.177371921431519,
+    "median": 14.948440551757812,
+    "p95": 25.85989809036255,
+    "max": 47.125511169433594
+  },
+  "distribution": [
+    {
+      "range": "0-5",
+      "pixels": 56312,
+      "percentage": 5.6312
+    },
+    {
+      "range": "5-10",
+      "pixels": 151580,
+      "percentage": 15.158
+    },
+    {
+      "range": "10-15",
+      "pixels": 295029,
+      "percentage": 29.5029
+    },
+    {
+      "range": "15-20",
+      "pixels": 276568,
+      "percentage": 27.6568
+    },
+    {
+      "range": "20-30",
+      "pixels": 206809,
+      "percentage": 20.6809
+    },
+    {
+      "range": "30+",
+      "pixels": 13702,
+      "percentage": 1.3702
+    }
+  ],
+  "cameraSlopes": [
+    {
+      "id": "broom-point",
+      "slopeDegrees": 15.468
+    },
+    {
+      "id": "south-arm",
+      "slopeDegrees": 18.217
+    },
+    {
+      "id": "trout-river-shallow-bay",
+      "slopeDegrees": 13.63
+    },
+    {
+      "id": "lookout-hill",
+      "slopeDegrees": 7.031
+    }
+  ]
+}

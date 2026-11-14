@@ -1,0 +1,118 @@
+.slope-panel-host {
+  position: relative;
+}
+
+.slope-panel {
+  position: absolute;
+  z-index: 20;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  box-sizing: border-box;
+  width: min(360px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid #3d444f;
+  border-radius: 12px;
+  background: #15191f;
+  color: #f4eee8;
+  box-shadow: 0 8px 28px #0006;
+  font-variant-numeric: tabular-nums;
+}
+
+.slope-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.slope-panel h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.slope-panel h3 {
+  margin: 16px 0 8px;
+  font-size: .9rem;
+}
+
+.slope-panel p {
+  margin: 8px 0 0;
+  color: #bac4d0;
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+.slope-panel button {
+  padding: 6px 10px;
+  border: 1px solid #475260;
+  border-radius: 6px;
+  background: #21262e;
+  color: inherit;
+  cursor: pointer;
+}
+
+.slope-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.slope-metrics > div {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #21262e;
+}
+
+.slope-metrics dt {
+  color: #bac4d0;
+  font-size: .82rem;
+}
+
+.slope-metrics dd {
+  margin: 3px 0 0;
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.slope-distribution {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: .85rem;
+}
+
+.slope-distribution li {
+  display: grid;
+  grid-template-columns: 3.1rem minmax(0, 1fr) 4.2rem;
+  align-items: center;
+  gap: 8px;
+}
+
+.slope-distribution li > :last-child {
+  text-align: end;
+}
+
+.slope-track {
+  overflow: hidden;
+  height: 6px;
+  border-radius: 6px;
+  background: #303843;
+}
+
+.slope-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #f4a475;
+}
+
+@media (max-width: 540px) {
+  .slope-panel {
+    max-height: min(60%, 420px);
+  }
+}

@@ -7,6 +7,8 @@ import { PanoramaLayer } from './PanoramaLayer'
 import { loadJezeroTerrain } from './jezeroTerrain'
 import { PanoramaDialog, type Panorama } from './PanoramaDialog'
 
+import { SlopeAnalysisPanel } from './SlopeAnalysisPanel'
+
 type MapPoint = [x: number, y: number, z: number]
 type PointKind = 'start' | 'end'
 type MapView = '2d' | '3d'
@@ -45,6 +47,8 @@ export default function App() {
   const [showPanoramas, setShowPanoramas] = useState(false)
   const [panoramaError, setPanoramaError] = useState<string | null>(null)
   const [activePanorama, setActivePanorama] = useState<Panorama | null>(null)
+
+  const [showSlopeAnalysis, setShowSlopeAnalysis] = useState(false)
 
   const isTopView = view === '2d'
 
@@ -144,7 +148,7 @@ export default function App() {
       </header>
 
       <section
-        className="map-viewport"
+        className="map-viewport slope-panel-host"
         aria-label={
           isTopView
             ? 'Jezero demo alanının üstten görünümü'
@@ -241,6 +245,9 @@ export default function App() {
             />
           )}
         </Canvas>
+        {showSlopeAnalysis && (
+          <SlopeAnalysisPanel onClose={() => setShowSlopeAnalysis(false)} />
+        )}
       </section>
 
       <div className="map-controls">
@@ -276,6 +283,14 @@ export default function App() {
           onClick={togglePanoramas}
         >
           Panoramalar
+        </button>
+
+        <button
+          type="button"
+          aria-expanded={showSlopeAnalysis}
+          onClick={() => setShowSlopeAnalysis((visible) => !visible)}
+        >
+          Eğim analizi
         </button>
 
         {!isTopView && <span>Dikey ölçek 1×</span>}
