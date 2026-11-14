@@ -77,7 +77,7 @@ function TerrainMaterial() {
   useEffect(() => {
     let active = true
     const image = new TextureLoader().load(
-      `${import.meta.env.BASE_URL}mission/jezero-hirise.webp`,
+      `${import.meta.env.BASE_URL}mission/jezero-terrain-visualization.webp`,
       (loaded) => {
         if (!active) {
           loaded.dispose()
