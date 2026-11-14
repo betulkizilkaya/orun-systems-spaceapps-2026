@@ -10,6 +10,7 @@ import { MissionRoute, TerrainFraming, TerrainTarget } from './features/mission/
 import { RouteProfile } from './features/mission/RouteProfile'
 import './features/mission/MissionLayout.css'
 import './features/mission/RouteComparison.css'
+import './features/mission/JezeroOpening.css'
 import { loadRouteGrid, shortestRoute } from './features/mission/routeGrid'
 import { SlopeAnalysisPanel } from './SlopeAnalysisPanel'
 
@@ -66,6 +67,21 @@ function PointMarker({ point, color }: { point: MapPoint; color: string }) {
 }
 
 export default function App() {
+  const [exploring, setExploring] = useState(() => window.location.hash === '#harita')
+
+  useEffect(() => {
+    function syncScreen() {
+      setExploring(window.location.hash === '#harita')
+    }
+
+    window.addEventListener('hashchange', syncScreen)
+    return () => window.removeEventListener('hashchange', syncScreen)
+  }, [])
+
+  function enterMap() {
+    window.location.hash = 'harita'
+    setExploring(true)
+  }
   const [view, setView] = useState<MapView>('2d')
   const [selecting, setSelecting] = useState<PointKind | null>(null)
   const [start, setStart] = useState<MapPoint | null>(null)
@@ -252,302 +268,405 @@ export default function App() {
   }
 
   return (
-    <main className="map-page mission-page">
-      <header className="map-header">
-        <div className="mission-name">
-          <p className="team-name">Orun Systems</p>
-          <h1>Martian Map</h1>
-        </div>
-        <span className="terrain-label">Jezero Krateri <span aria-hidden="true">/</span> Mars</span>
-      </header>
-
-      <div className="mission-workspace">
-        <section
-          className="map-viewport slope-panel-host mission-viewport"
-          aria-label={
-            isTopView
-              ? 'Jezero demo alanının üstten görünümü'
-              : 'Jezero demo alanının üç boyutlu görünümü'
-          }
-        >
-          <Canvas
-            key={view}
-            orthographic={isTopView}
-            camera={
-              isTopView
-                ? {
-                    position: [0, 150, 0],
-                    up: [0, 0, -1],
-                    zoom: 1,
-                    near: 0.1,
-                    far: 500,
-                  }
-                : {
-                    position: [85, 72, 92],
-                    fov: 46,
-                    near: 0.1,
-                    far: 500,
-                  }
-            }
-            dpr={[1, 1.5]}
-            fallback={<p>Tarayıcıda harita açılamadı.</p>}
-          >
-            <color attach="background" args={['#0b111a']} />
-            <ambientLight intensity={0.58} />
-            <directionalLight position={[-45, 35, 25]} color="#ffe3ce" intensity={2.25} />
-            <directionalLight position={[40, 28, -45]} color="#82b8df" intensity={0.48} />
-
-            {terrain && (
-              <mesh
-                geometry={terrain.geometry}
-                onClick={(event) => {
-                  if (!selecting || event.delta > 4) return
-
-                  event.stopPropagation()
-                  pickPoint([event.point.x, event.point.y, event.point.z])
-                }}
-              >
-                <meshStandardMaterial color="#b76543" roughness={0.95} />
-              </mesh>
-            )}
-
-            {terrain && showGeology && (
-              <GeologyLayer terrain={terrain} onError={setGeologyError} />
-            )}
-
-            {terrain && showPanoramas && (
-              <PanoramaLayer
-                terrain={terrain}
-                onError={setPanoramaError}
-                onSelect={setActivePanorama}
+    <>
+      <div
+        className={`horizon-page ${exploring ? 'is-exploring' : 'is-intro'}`}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 100,
+          pointerEvents: exploring ? 'none' : 'auto',
+        }}
+      >
+        <section className="flight-cover opening-cover"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+            opacity: exploring ? 0 : 1,
+          }} inert={exploring} aria-hidden={exploring} aria-label="Jezero · Mars rota laboratuvarı">
+          <div className="opening-frame">
+            <img className="opening-image"
+              src={`${import.meta.env.BASE_URL}mission/jezero-opening.png`}
+              width={1672}
+              height={941}
+              fetchPriority="high"
+              alt=""
+            />
+            <svg
+              className="opening-route"
+              viewBox="0 0 1672 941"
+              preserveAspectRatio="xMidYMid slice"
+              aria-hidden="true"
+            >
+              <path
+                pathLength="100"
+                d="M 1044 681
+                   C 1017 684 994 685 969 680
+                   C 950 677 968 668 961 659
+                   C 957 653 952 648 947 641
+                   C 925 634 872 629 841 612
+                   C 839 609 852 603 864 590
+                   C 880 578 849 576 820 571
+                   C 786 562 750 574 711 563
+                   C 693 560 675 557 676 553
+                   C 679 550 711 539 721 534
+                   C 720 531 701 526 700 523
+                   C 700 519 726 515 745 513
+                   C 780 510 815 513 857 497
+                   C 862 494 856 487 854 485
+                   C 851 480 890 477 910 472
+                   C 932 467 953 461 950 456
+                   C 946 451 945 447 938 444
+                   C 927 441 917 438 910 434"
               />
-            )}
-
-            {highlight && <TerrainTarget point={highlight} />}
-
-            {start && <PointMarker point={start} color="#75e7c8" />}
-            {end && <PointMarker point={end} color="#ffc475" />}
-
-            {alternativePositions && (
-              <Line points={alternativePositions} color="#ffc475" lineWidth={2}
-                dashed dashSize={1} gapSize={1.25} renderOrder={11}
-                depthTest={false} depthWrite={false} />
-            )}
-
-            {routePositions && (
-              <MissionRoute
-                key={routeVersion}
-                points={routePositions}
-                cinematic={verified && !isTopView}
-              />
-            )}
-
-            {isTopView ? (
-              <OrbitControls
-                makeDefault
-                enableRotate={false}
-                mouseButtons={{
-                  LEFT: MOUSE.PAN,
-                  MIDDLE: MOUSE.DOLLY,
-                  RIGHT: MOUSE.PAN,
-                }}
-                touches={{ ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_PAN }}
-                minZoom={1}
-                maxZoom={40}
-              />
-            ) : (
-              <OrbitControls
-                makeDefault
-                enableDamping
-                target={[0, 0, 0]}
-                minDistance={25}
-                maxDistance={450}
-                maxPolarAngle={Math.PI / 2 - 0.06}
-              />
-            )}
-            {terrain && <TerrainFraming geometry={terrain.geometry} />}
-          </Canvas>
-          {showSlopeAnalysis && (
-            <SlopeAnalysisPanel onClose={() => setShowSlopeAnalysis(false)} />
-          )}
-
-          <div className="mission-frame" aria-hidden="true" />
-          <div className="map-controls mission-tools">
-          <button
-            type="button"
-            aria-pressed={isTopView}
-            onClick={() => setView('2d')}
-          >
-            2B · Üstten
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={!isTopView}
-            onClick={() => setView('3d')}
-          >
-            3B · Arazi
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={showGeology}
-            disabled={!terrain}
-            onClick={toggleGeology}
-          >
-            Jeoloji
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={showPanoramas}
-            disabled={!terrain}
-            onClick={togglePanoramas}
-          >
-            Panoramalar
-          </button>
-
-          <button
-            type="button"
-            aria-expanded={showSlopeAnalysis}
-            onClick={() => setShowSlopeAnalysis((visible) => !visible)}
-          >
-            Eğim analizi
-          </button>
-
-          </div>
-          <div className="mission-map-scale">
-            {isTopView ? 'Üstten görünüm' : 'Dikey ölçek 1×'}
+            </svg>
+            <img
+              className="opening-logo"
+              src={`${import.meta.env.BASE_URL}mission/orun-opening-logo.png`}
+              alt="ORUN Systems"
+              width={272}
+              height={98}
+            />
+            <svg className="opening-instrument" viewBox="0 0 620 540" aria-hidden="true">
+              <defs>
+                <linearGradient id="jezero-arc">
+                  <stop stopColor="#e9a96e" stopOpacity="0" />
+                  <stop offset=".38" stopColor="#f4c594" />
+                  <stop offset="1" stopColor="#d5b89c" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path className="opening-arc" d="M 50 153 C 76 63 182 -6 268 37 M 50 177 C 57 233 114 279 177 261" />
+              <path className="opening-ticks" d="M 30 151 h 15 M 214 0 v 13 M 214 18 v 11 M 141 253 v 11 M 141 270 v 11 M 523 151 h 16 M 570 501 v -6 h 6 M 592 495 h 6 v 6 M 598 517 v 6 h -6 M 576 523 h -6 v -6" />
+              <path className="opening-link" d="M 118 369 C 132 467 345 509 584 510" />
+              <circle className="opening-beacon" cx="584" cy="510" r="2" />
+            </svg>
+            <div className="opening-copy">
+              <h1 className="opening-heading">
+                <img
+                  src={`${import.meta.env.BASE_URL}mission/jezero-heading.png`}
+                  alt="Jezero. Arazinin eğimini incele, yürüyüş rotanı çiz."
+                  width={373}
+                  height={142}
+                />
+              </h1>
+              <button type="button" className="opening-button" disabled={!terrain}
+                onClick={() => {
+                  enterMap()
+                  requestAnimationFrame(() => document.getElementById('jezero-map')?.focus())
+                }}>
+                <span className="opening-waypoint" aria-hidden="true" />
+                Rota planlayıcıyı aç <span className="opening-arrow" aria-hidden="true">⟶</span>
+              </button>
+              {!terrain && (
+                <p className="opening-status" role="status">
+                  {terrainError ?? 'Arazi yükleniyor…'}
+                </p>
+              )}
+            </div>
+            <small className="opening-credit">Temsili görsel</small>
           </div>
         </section>
-        <aside className="mission-console" aria-label="Rota planlama">
-          <header>
-            <h2>Rota planlama</h2>
-
-          </header>
-          <button type="button" className="mission-example" onClick={() => void openExample()}
-            disabled={!terrain || loadingExample}>
-            {loadingExample ? 'Örnek yükleniyor…' : 'Doğrulanmış örnek rotayı aç'}
-          </button>
-          {exampleStatus && <p role="alert">{exampleStatus}</p>}
-          {example && !verified && <p role="status">Hesaplanan rota doğrulama kaydıyla eşleşmedi.</p>}
-          <div className="mission-route-actions">
-
-          <button
-            type="button"
-            aria-pressed={selecting === 'start'}
-            disabled={!terrain || loadingExample}
-            onClick={() => setSelecting('start')}
-          >
-            {start ? 'Başlangıcı değiştir' : 'Başlangıç seç'}
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={selecting === 'end'}
-            disabled={!terrain || loadingExample}
-            onClick={() => setSelecting('end')}
-          >
-            {end ? 'Bitişi değiştir' : 'Bitiş seç'}
-          </button>
-
-          <button
-            type="button"
-            onClick={resetPoints}
-            disabled={loadingExample || (!start && !end && selecting === null)}
-          >
-            Sıfırla
-          </button>
-
-          </div>
-
-          <p className="mission-status" role="status">
-            {terrainError ?? (terrain ? status : 'Jezero arazisi yükleniyor…')}
-          </p>
-          {route && (
-            <dl className="mission-metrics">
-              <div>
-                <dt>Yatay mesafe</dt>
-                <dd>{distanceFormat.format(route.distanceMeters)} <small>m</small></dd>
-              </div>
-              <div>
-                <dt>Maks. hücre eğimi</dt>
-                <dd>{slopeFormat.format(route.maxSlope)}<small>°</small></dd>
-              </div>
-            </dl>
-          )}
-
-          {route && (
-            <section className="route-comparison" aria-label="Rota karşılaştırması">
-              <button type="button" aria-pressed={compare}
-                onClick={() => setCompare((visible) => !visible)}>
-                {compare ? 'Karşılaştırmayı kapat' : 'Rotaları karşılaştır'}
-              </button>
-              {compare && !grid && (
-                <p role="status">{gridError ? 'Eğim verisi okunamadı.' : 'Eğim verisi yükleniyor…'}</p>
-              )}
-              {compare && grid && !alternative && <p role="status">Alternatif rota oluşturulamadı.</p>}
-              {alternative && (
-                <>
-                  <table>
-                    <thead><tr><th scope="col">Rota</th><th scope="col">Yatay mesafe</th><th scope="col">Maks. eğim</th></tr></thead>
-                    <tbody>
-                      <tr><th scope="row"><i className="route-swatch route-swatch-weighted" />Eğim ağırlıklı</th>
-                        <td>{distanceFormat.format(route.distanceMeters)} m</td>
-                        <td>{slopeFormat.format(route.maxSlope)}°</td></tr>
-                      <tr><th scope="row"><i className="route-swatch route-swatch-short" />Mesafe odaklı</th>
-                        <td>{distanceFormat.format(alternative.distanceMeters)} m</td>
-                        <td>{slopeFormat.format(alternative.maxSlope)}°</td></tr>
-                    </tbody>
-                  </table>
-                  <p role="status">{describeRouteComparison(route, alternative)}</p>
-                </>
-              )}
-            </section>
-          )}
-
-          {route && terrain && (
-            <RouteProfile key={routeVersion}
-              grid={grid}
-              gridError={gridError && !grid}
-              points={route.points}
-              width={terrain.geometry.parameters.width}
-              depth={terrain.geometry.parameters.height}
-              distanceMeters={route.distanceMeters}
-              verified={verified}
-              onHighlight={setHighlight}
-            />
-          )}
-
-          {showGeology &&
-            (geologyError ? (
-              <span role="alert">{geologyError}</span>
-            ) : (
-              <span>
-                <span style={{ color: GEOLOGY_UNITS.cr.color }}>
-                  {GEOLOGY_UNITS.cr.label}
-                </span>
-                {' · '}
-                <span style={{ color: GEOLOGY_UNITS.Nnp1.color }}>
-                  {GEOLOGY_UNITS.Nnp1.label}
-                </span>
-              </span>
-            ))}
-
-          {showPanoramas &&
-            (panoramaError ? (
-              <span role="alert">{panoramaError}</span>
-            ) : (
-              <span>360° pinler yaklaşık çekim konumlarını gösterir.</span>
-            ))}
-        </aside>
       </div>
-      {activePanorama && (
-        <PanoramaDialog
-          panorama={activePanorama}
-          onClose={() => setActivePanorama(null)}
-        />
-      )}
-    </main>
+      <main className="map-page mission-page" inert={!exploring}>
+        <header className="map-header">
+          <div className="mission-name">
+            <p className="team-name">Orun Systems</p>
+            <h1>Martian Map</h1>
+          </div>
+          <span className="terrain-label">Jezero Krateri <span aria-hidden="true">/</span> Mars</span>
+        </header>
+
+        <div className="mission-workspace">
+          <section
+            className="map-viewport slope-panel-host mission-viewport"
+            id="jezero-map"
+            tabIndex={-1}
+            aria-label={
+              isTopView
+                ? 'Jezero demo alanının üstten görünümü'
+                : 'Jezero demo alanının üç boyutlu görünümü'
+            }
+          >
+            <Canvas
+              key={view}
+              orthographic={isTopView}
+              camera={
+                isTopView
+                  ? {
+                      position: [0, 150, 0],
+                      up: [0, 0, -1],
+                      zoom: 1,
+                      near: 0.1,
+                      far: 500,
+                    }
+                  : {
+                      position: [85, 72, 92],
+                      fov: 46,
+                      near: 0.1,
+                      far: 500,
+                    }
+              }
+              dpr={[1, 1.5]}
+              fallback={<p>Tarayıcıda harita açılamadı.</p>}
+            >
+              <color attach="background" args={['#0b111a']} />
+              <ambientLight intensity={0.58} />
+              <directionalLight position={[-45, 35, 25]} color="#ffe3ce" intensity={2.25} />
+              <directionalLight position={[40, 28, -45]} color="#82b8df" intensity={0.48} />
+
+              {terrain && (
+                <mesh
+                  geometry={terrain.geometry}
+                  onClick={(event) => {
+                    if (!selecting || event.delta > 4) return
+
+                    event.stopPropagation()
+                    pickPoint([event.point.x, event.point.y, event.point.z])
+                  }}
+                >
+                  <meshStandardMaterial color="#b76543" roughness={0.95} />
+                </mesh>
+              )}
+
+              {terrain && showGeology && (
+                <GeologyLayer terrain={terrain} onError={setGeologyError} />
+              )}
+
+              {terrain && showPanoramas && (
+                <PanoramaLayer
+                  terrain={terrain}
+                  onError={setPanoramaError}
+                  onSelect={setActivePanorama}
+                />
+              )}
+
+              {highlight && <TerrainTarget point={highlight} />}
+
+              {start && <PointMarker point={start} color="#75e7c8" />}
+              {end && <PointMarker point={end} color="#ffc475" />}
+
+              {alternativePositions && (
+                <Line points={alternativePositions} color="#ffc475" lineWidth={2}
+                  dashed dashSize={1} gapSize={1.25} renderOrder={11}
+                  depthTest={false} depthWrite={false} />
+              )}
+
+              {routePositions && (
+                <MissionRoute
+                  key={routeVersion}
+                  points={routePositions}
+                  cinematic={verified && !isTopView}
+                />
+              )}
+
+              {isTopView ? (
+                <OrbitControls
+                  makeDefault
+                  enableRotate={false}
+                  mouseButtons={{
+                    LEFT: MOUSE.PAN,
+                    MIDDLE: MOUSE.DOLLY,
+                    RIGHT: MOUSE.PAN,
+                  }}
+                  touches={{ ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_PAN }}
+                  minZoom={1}
+                  maxZoom={40}
+                />
+              ) : (
+                <OrbitControls
+                  makeDefault
+                  enableDamping
+                  target={[0, 0, 0]}
+                  minDistance={25}
+                  maxDistance={450}
+                  maxPolarAngle={Math.PI / 2 - 0.06}
+                />
+              )}
+              {terrain && <TerrainFraming geometry={terrain.geometry} />}
+            </Canvas>
+            {showSlopeAnalysis && (
+              <SlopeAnalysisPanel onClose={() => setShowSlopeAnalysis(false)} />
+            )}
+
+            <div className="mission-frame" aria-hidden="true" />
+            <div className="map-controls mission-tools">
+            <button
+              type="button"
+              aria-pressed={isTopView}
+              onClick={() => setView('2d')}
+            >
+              2B · Üstten
+            </button>
+
+            <button
+              type="button"
+              aria-pressed={!isTopView}
+              onClick={() => setView('3d')}
+            >
+              3B · Arazi
+            </button>
+
+            <button
+              type="button"
+              aria-pressed={showGeology}
+              disabled={!terrain}
+              onClick={toggleGeology}
+            >
+              Jeoloji
+            </button>
+
+            <button
+              type="button"
+              aria-pressed={showPanoramas}
+              disabled={!terrain}
+              onClick={togglePanoramas}
+            >
+              Panoramalar
+            </button>
+
+            <button
+              type="button"
+              aria-expanded={showSlopeAnalysis}
+              onClick={() => setShowSlopeAnalysis((visible) => !visible)}
+            >
+              Eğim analizi
+            </button>
+
+            </div>
+            <div className="mission-map-scale">
+              {isTopView ? 'Üstten görünüm' : 'Dikey ölçek 1×'}
+            </div>
+          </section>
+          <aside className="mission-console" aria-label="Rota planlama">
+            <header>
+              <h2>Rota planlama</h2>
+
+            </header>
+            <button type="button" className="mission-example" onClick={() => void openExample()}
+              disabled={!terrain || loadingExample}>
+              {loadingExample ? 'Örnek yükleniyor…' : 'Doğrulanmış örnek rotayı aç'}
+            </button>
+            {exampleStatus && <p role="alert">{exampleStatus}</p>}
+            {example && !verified && <p role="status">Hesaplanan rota doğrulama kaydıyla eşleşmedi.</p>}
+            <div className="mission-route-actions">
+
+            <button
+              type="button"
+              aria-pressed={selecting === 'start'}
+              disabled={!terrain || loadingExample}
+              onClick={() => setSelecting('start')}
+            >
+              {start ? 'Başlangıcı değiştir' : 'Başlangıç seç'}
+            </button>
+
+            <button
+              type="button"
+              aria-pressed={selecting === 'end'}
+              disabled={!terrain || loadingExample}
+              onClick={() => setSelecting('end')}
+            >
+              {end ? 'Bitişi değiştir' : 'Bitiş seç'}
+            </button>
+
+            <button
+              type="button"
+              onClick={resetPoints}
+              disabled={loadingExample || (!start && !end && selecting === null)}
+            >
+              Sıfırla
+            </button>
+
+            </div>
+
+            <p className="mission-status" role="status">
+              {terrainError ?? (terrain ? status : 'Jezero arazisi yükleniyor…')}
+            </p>
+            {route && (
+              <dl className="mission-metrics">
+                <div>
+                  <dt>Yatay mesafe</dt>
+                  <dd>{distanceFormat.format(route.distanceMeters)} <small>m</small></dd>
+                </div>
+                <div>
+                  <dt>Maks. hücre eğimi</dt>
+                  <dd>{slopeFormat.format(route.maxSlope)}<small>°</small></dd>
+                </div>
+              </dl>
+            )}
+
+            {route && (
+              <section className="route-comparison" aria-label="Rota karşılaştırması">
+                <button type="button" aria-pressed={compare}
+                  onClick={() => setCompare((visible) => !visible)}>
+                  {compare ? 'Karşılaştırmayı kapat' : 'Rotaları karşılaştır'}
+                </button>
+                {compare && !grid && (
+                  <p role="status">{gridError ? 'Eğim verisi okunamadı.' : 'Eğim verisi yükleniyor…'}</p>
+                )}
+                {compare && grid && !alternative && <p role="status">Alternatif rota oluşturulamadı.</p>}
+                {alternative && (
+                  <>
+                    <table>
+                      <thead><tr><th scope="col">Rota</th><th scope="col">Yatay mesafe</th><th scope="col">Maks. eğim</th></tr></thead>
+                      <tbody>
+                        <tr><th scope="row"><i className="route-swatch route-swatch-weighted" />Eğim ağırlıklı</th>
+                          <td>{distanceFormat.format(route.distanceMeters)} m</td>
+                          <td>{slopeFormat.format(route.maxSlope)}°</td></tr>
+                        <tr><th scope="row"><i className="route-swatch route-swatch-short" />Mesafe odaklı</th>
+                          <td>{distanceFormat.format(alternative.distanceMeters)} m</td>
+                          <td>{slopeFormat.format(alternative.maxSlope)}°</td></tr>
+                      </tbody>
+                    </table>
+                    <p role="status">{describeRouteComparison(route, alternative)}</p>
+                  </>
+                )}
+              </section>
+            )}
+
+            {route && terrain && (
+              <RouteProfile key={routeVersion}
+                grid={grid}
+                gridError={gridError && !grid}
+                points={route.points}
+                width={terrain.geometry.parameters.width}
+                depth={terrain.geometry.parameters.height}
+                distanceMeters={route.distanceMeters}
+                verified={verified}
+                onHighlight={setHighlight}
+              />
+            )}
+
+            {showGeology &&
+              (geologyError ? (
+                <span role="alert">{geologyError}</span>
+              ) : (
+                <span>
+                  <span style={{ color: GEOLOGY_UNITS.cr.color }}>
+                    {GEOLOGY_UNITS.cr.label}
+                  </span>
+                  {' · '}
+                  <span style={{ color: GEOLOGY_UNITS.Nnp1.color }}>
+                    {GEOLOGY_UNITS.Nnp1.label}
+                  </span>
+                </span>
+              ))}
+
+            {showPanoramas &&
+              (panoramaError ? (
+                <span role="alert">{panoramaError}</span>
+              ) : (
+                <span>360° pinler yaklaşık çekim konumlarını gösterir.</span>
+              ))}
+          </aside>
+        </div>
+        {activePanorama && (
+          <PanoramaDialog
+            panorama={activePanorama}
+            onClose={() => setActivePanorama(null)}
+          />
+        )}
+      </main>
+    </>
   )
 }
