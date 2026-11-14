@@ -1,60 +1,23 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { MOUSE, PlaneGeometry, TOUCH } from 'three'
-import { getSampleRoute } from './sampleRoute'
-import { getSampleElevation } from './sampleTerrain'
+import { MOUSE, TOUCH } from 'three'
+import { loadJezeroTerrain } from './jezeroTerrain'
 
-type MapPoint = [number, number, number]
+type MapPoint = [x: number, y: number, z: number]
 type PointKind = 'start' | 'end'
 type MapView = '2d' | '3d'
+type JezeroTerrainData = Awaited<ReturnType<typeof loadJezeroTerrain>>
 
 const MARKER_OFFSET = 1.2
 
-function SampleTerrain({ onPick }: { onPick: (point: MapPoint) => void }) {
-  const geometry = useMemo(() => {
-    const terrain = new PlaneGeometry(120, 120, 96, 96)
-    terrain.rotateX(-Math.PI / 2)
-
-    const vertices = terrain.attributes.position
-
-    for (let index = 0; index < vertices.count; index += 1) {
-      const x = vertices.getX(index)
-      const z = vertices.getZ(index)
-
-      vertices.setY(index, getSampleElevation(x, z))
-    }
-
-    terrain.computeVertexNormals()
-    return terrain
-  }, [])
-
-  useEffect(() => {
-    return () => geometry.dispose()
-  }, [geometry])
-
-  return (
-    <mesh
-      geometry={geometry}
-      onClick={(event) => {
-        if (event.delta > 4) return
-
-        event.stopPropagation()
-        onPick([event.point.x, event.point.y, event.point.z])
-      }}
-    >
-      <meshStandardMaterial color="#b76543" roughness={0.95} />
-    </mesh>
-  )
-}
-
-function markerPosition([x, y, z]: MapPoint): MapPoint {
+function overlayPosition([x, y, z]: MapPoint): MapPoint {
   return [x, y + MARKER_OFFSET, z]
 }
 
 function PointMarker({ point, color }: { point: MapPoint; color: string }) {
   return (
-    <mesh position={markerPosition(point)}>
+    <mesh position={overlayPosition(point)}>
       <sphereGeometry args={[1.2, 24, 16]} />
       <meshBasicMaterial color={color} />
     </mesh>
@@ -66,16 +29,52 @@ export default function App() {
   const [selecting, setSelecting] = useState<PointKind | null>(null)
   const [start, setStart] = useState<MapPoint | null>(null)
   const [end, setEnd] = useState<MapPoint | null>(null)
+  const [terrain, setTerrain] = useState<JezeroTerrainData | null>(null)
+  const [terrainError, setTerrainError] = useState<string | null>(null)
 
   const isTopView = view === '2d'
-  const routePoints = useMemo(() => {
-    if (!start || !end) return null
 
-    return getSampleRoute(start, end)?.map(markerPosition) ?? null
-  }, [start, end])
+  useEffect(() => {
+    const controller = new AbortController()
+    let loadedTerrain: JezeroTerrainData | undefined
+
+    loadJezeroTerrain(controller.signal)
+      .then((result) => {
+        if (controller.signal.aborted) {
+          result.geometry.dispose()
+          return
+        }
+
+        loadedTerrain = result
+        setTerrain(result)
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return
+
+        setTerrainError(
+          error instanceof Error ? error.message : 'Jezero verisi okunamadı.',
+        )
+      })
+
+    return () => {
+      controller.abort()
+      loadedTerrain?.geometry.dispose()
+    }
+  }, [])
+
+  const route = useMemo(() => {
+    if (!terrain || !start || !end) return null
+
+    return terrain.getRoute(start, end)
+  }, [terrain, start, end])
+
+  const routePositions = useMemo(
+    () => route?.points.map(overlayPosition) ?? null,
+    [route],
+  )
 
   function pickPoint(point: MapPoint) {
-    if (selecting === null) return
+    if (!selecting) return
 
     if (selecting === 'start') {
       setStart(point)
@@ -101,8 +100,10 @@ export default function App() {
   } else if (selecting === 'end') {
     status = 'Bitiş noktasını yerleştirmek için araziye tıkla.'
   } else if (start && end) {
-    status = routePoints
-      ? 'Örnek arazide eğim ve mesafeye göre rota hesaplandı.'
+    status = route
+      ? `Rota hücrelerinde en yüksek eğim: ${route.maxSlope.toLocaleString('tr-TR', {
+          maximumFractionDigits: 1,
+        })}°`
       : 'Bu iki nokta arasında rota bulunamadı.'
   } else if (start) {
     status = 'Başlangıç yerleştirildi. Şimdi bitiş noktasını seç.'
@@ -117,15 +118,15 @@ export default function App() {
           <p className="team-name">Orun Systems</p>
           <h1>Martian Map</h1>
         </div>
-        <span className="terrain-label">Örnek arazi</span>
+        <span className="terrain-label">Jezero · Demo alanı</span>
       </header>
 
       <section
         className="map-viewport"
         aria-label={
           isTopView
-            ? 'Örnek arazinin üstten görünümü'
-            : 'Üç boyutlu örnek Mars arazisi'
+            ? 'Jezero demo alanının üstten görünümü'
+            : 'Jezero demo alanının üç boyutlu görünümü'
         }
       >
         <Canvas
@@ -148,20 +149,32 @@ export default function App() {
                 }
           }
           dpr={[1, 1.5]}
-          fallback={<p>Tarayıcıda harita açılamadı.</p>}
+          fallback={<p>Tarayıcıda 3B harita açılamadı.</p>}
         >
           <color attach="background" args={['#101318']} />
           <ambientLight intensity={0.7} />
           <directionalLight position={[-45, 35, 25]} intensity={2.4} />
 
-          <SampleTerrain onPick={pickPoint} />
+          {terrain && (
+            <mesh
+              geometry={terrain.geometry}
+              onClick={(event) => {
+                if (!selecting || event.delta > 4) return
+
+                event.stopPropagation()
+                pickPoint([event.point.x, event.point.y, event.point.z])
+              }}
+            >
+              <meshStandardMaterial color="#b76543" roughness={0.95} />
+            </mesh>
+          )}
 
           {start && <PointMarker point={start} color="#75e7c8" />}
           {end && <PointMarker point={end} color="#ffc475" />}
 
-          {routePoints && (
+          {routePositions && (
             <Line
-              points={routePoints}
+              points={routePositions}
               color="#f4eee8"
               lineWidth={2.5}
               renderOrder={10}
@@ -213,9 +226,12 @@ export default function App() {
           3B · Arazi
         </button>
 
+        {!isTopView && <span>Dikey ölçek 1×</span>}
+
         <button
           type="button"
           aria-pressed={selecting === 'start'}
+          disabled={!terrain}
           onClick={() => setSelecting('start')}
         >
           {start ? 'Başlangıcı değiştir' : 'Başlangıç seç'}
@@ -224,6 +240,7 @@ export default function App() {
         <button
           type="button"
           aria-pressed={selecting === 'end'}
+          disabled={!terrain}
           onClick={() => setSelecting('end')}
         >
           {end ? 'Bitişi değiştir' : 'Bitiş seç'}
@@ -237,7 +254,9 @@ export default function App() {
           Sıfırla
         </button>
 
-        <span role="status">{status}</span>
+        <span role="status">
+          {terrainError ?? (terrain ? status : 'Jezero arazisi yükleniyor…')}
+        </span>
       </div>
     </main>
   )
