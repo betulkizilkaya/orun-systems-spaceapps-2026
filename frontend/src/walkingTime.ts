@@ -68,14 +68,14 @@ export function estimateWalkingTime(
     }
 }
 
-/** 45 sn · 12 dk 40 sn · 1 sa 05 dk */
+/** 45 s · 12 min 40 s · 1 h 05 min */
 export function formatDuration(totalSeconds: number): string {
     const total = Math.max(0, Math.round(totalSeconds))
     const hours = Math.floor(total / 3600)
     const minutes = Math.floor((total % 3600) / 60)
     const seconds = total % 60
 
-    if (hours > 0) return `${hours} sa ${String(minutes).padStart(2, '0')} dk`
-    if (minutes > 0) return `${minutes} dk ${String(seconds).padStart(2, '0')} sn`
-    return `${seconds} sn`
+    if (hours > 0) return `${hours} h ${String(minutes).padStart(2, '0')} min`
+    if (minutes > 0) return `${minutes} min ${String(seconds).padStart(2, '0')} s`
+    return `${seconds} s`
 }

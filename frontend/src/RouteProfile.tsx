@@ -1,15 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
-import { fromArrayBuffer } from 'geotiff'
+import { useMemo, useState } from 'react'
 import './RouteProfile.css'
 
 type Point = [number, number, number]
 type Sample = { point: Point; distance: number; slope: number; row: number; col: number }
 
-const format = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 })
+const format = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
 export function RouteProfile({
-  points, width, depth, distanceMeters, verified, onHighlight,
+  points, width, depth, distanceMeters, verified, onHighlight, grid, gridError,
 }: {
+  grid: number[][] | null
+  gridError: boolean
   points: Point[]
   width: number
   depth: number
@@ -17,51 +18,7 @@ export function RouteProfile({
   verified: boolean
   onHighlight: (point: Point | null) => void
 }) {
-  const [grid, setGrid] = useState<number[][] | null>(null)
-  const [error, setError] = useState(false)
   const [selected, setSelected] = useState<number | null>(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function load() {
-      try {
-        const response = await fetch(
-          `${import.meta.env.BASE_URL}data/jezero-demo-slope.tif`,
-          { signal: controller.signal },
-        )
-        if (!response.ok) throw new Error('Slope raster unavailable')
-        const tiff = await fromArrayBuffer(await response.arrayBuffer())
-        const image = await tiff.getImage()
-        if (image.getWidth() !== 1000 || image.getHeight() !== 1000) {
-          throw new Error('Unexpected slope raster dimensions')
-        }
-        const values = await image.readRasters({ samples: [0], interleave: true })
-        const noData = image.getGDALNoData()
-        const cells = Array.from({ length: 100 }, (_, row) =>
-          Array.from({ length: 100 }, (_, col) => {
-            let max = 0
-            for (let y = row * 10; y < row * 10 + 10; y++) {
-              for (let x = col * 10; x < col * 10 + 10; x++) {
-                const slope = values[y * 1000 + x]
-                if (!Number.isFinite(slope) || slope === noData || slope < 0 || slope > 90) {
-                  return NaN
-                }
-                max = Math.max(max, slope)
-              }
-            }
-            return max
-          }),
-        )
-        if (!controller.signal.aborted) setGrid(cells)
-      } catch {
-        if (!controller.signal.aborted) setError(true)
-      }
-    }
-
-    void load()
-    return () => controller.abort()
-  }, [])
 
   const samples = useMemo(() => {
     if (!grid) return null
@@ -91,10 +48,10 @@ export function RouteProfile({
     })
   }, [grid, points, width, depth, distanceMeters])
 
-  if (error || samples?.some(({ slope }) => !Number.isFinite(slope))) {
-    return <p role="status">Rota eğim profili yüklenemedi.</p>
+  if (gridError || samples?.some(({ slope }) => !Number.isFinite(slope))) {
+    return <p role="status">Could not load the route slope profile.</p>
   }
-  if (!samples?.length) return <p role="status">Eğim profili yükleniyor…</p>
+  if (!samples?.length) return <p role="status">Loading slope profile…</p>
 
   const peak = samples.reduce((best, sample, i) =>
     sample.slope > samples[best].slope ? i : best, 0)
@@ -109,9 +66,9 @@ export function RouteProfile({
   }
 
   return (
-    <section aria-label="Rota eğim profili">
-      <h3>Rota eğim profili</h3>
-      {verified && <p className="route-verified">Dijkstra ile doğrulandı · {samples.length} hücre</p>}
+    <section aria-label="Route slope profile">
+      <h3>Route slope profile</h3>
+      {verified && <p className="route-verified">Verified with Dijkstra · {samples.length} cells</p>}
       <svg className="route-chart" viewBox="0 0 320 150" aria-hidden="true"
         onPointerMove={(event) => {
           const rect = event.currentTarget.getBoundingClientRect()
@@ -131,13 +88,13 @@ export function RouteProfile({
         <text x="300" y="145" textAnchor="end">{format.format(distanceMeters)} m</text>
       </svg>
       <label className="route-profile-slider">
-        Rota hücresi
+        Route cell
         <input type="range" min="0" max={samples.length - 1} value={selected ?? peak}
           disabled={samples.length === 1}
           onChange={(event) => activate(Number(event.target.value))} />
       </label>
-      <p>{format.format(current.distance)} m · {format.format(current.slope)}° hücre maksimumu</p>
-      <button type="button" onClick={() => activate(peak)}>En dik hücreyi göster</button>
+      <p>{format.format(current.distance)} m · {format.format(current.slope)}° cell maximum</p>
+      <button type="button" onClick={() => activate(peak)}>Show steepest cell</button>
     </section>
   )
 }

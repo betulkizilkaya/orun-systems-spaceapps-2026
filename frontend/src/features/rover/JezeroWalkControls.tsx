@@ -19,14 +19,14 @@ type Props = {
 }
 
 const modes = [
-  ['orbit', 'Serbest'],
-  ['follow', 'Takip'],
-  ['pov', 'Astronot POV'],
+  ['orbit', 'Free'],
+  ['follow', 'Follow'],
+  ['pov', 'Astronaut POV'],
 ] as const
 const speeds = [2, 5, 10, 20, 50, 100, 200]
-const integer = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 })
-const decimal = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-const speedFormat = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 })
+const integer = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
+const decimal = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+const speedFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
 function SpeedMenu({ value, onChange }: { value: number; onChange: (value: number) => void }) {
   const [open, setOpen] = useState(false)
@@ -50,19 +50,19 @@ function SpeedMenu({ value, onChange }: { value: number; onChange: (value: numbe
 
   return (
     <div className="walk-speed" ref={root}>
-      <span className="walk-label">Hız</span>
+      <span className="walk-label">Speed</span>
       <button
         type="button"
         className="walk-speed-trigger"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="Oynatma hızı"
+        aria-label="Playback speed"
         onClick={() => setOpen((o) => !o)}
       >
         {speedFormat.format(value / 10)}× <span aria-hidden="true">▾</span>
       </button>
       {open && (
-        <ul className="walk-speed-menu" role="listbox" aria-label="Oynatma hızı">
+        <ul className="walk-speed-menu" role="listbox" aria-label="Playback speed">
           {speeds.map((speed) => (
             <li key={speed} role="option" aria-selected={speed === value}>
               <button type="button" onClick={() => { onChange(speed); setOpen(false) }}>
@@ -103,12 +103,12 @@ export function JezeroWalkControls(p: Props) {
     <>
       <div className="walk-main">
         <div className="walk-readout">
-          <span className="walk-label">Kat edilen</span>
+          <span className="walk-label">Distance covered</span>
           <strong className="walk-distance">
             {integer.format(p.distanceM)}
             <small> / {integer.format(p.totalDistanceM)} m</small>
           </strong>
-          <span className="walk-percent">%{integer.format(percent)} tamamlandı</span>
+          <span className="walk-percent">{integer.format(percent)}% complete</span>
         </div>
 
         <div className="walk-profile">
@@ -123,12 +123,12 @@ export function JezeroWalkControls(p: Props) {
               <polyline points={points} fill="none" stroke="#ffb25b" strokeWidth="2" vectorEffect="non-scaling-stroke" />
             </svg>
             <div className="walk-playhead" style={{ left: `${percent}%`, top: `${height}%` }} aria-hidden="true" />
-            <input type="range" aria-label="Rota mesafesi" min={0} max={p.totalDistanceM}
+            <input type="range" aria-label="Route distance" min={0} max={p.totalDistanceM}
               step="any" value={p.distanceM} onChange={(e) => p.setDistanceM(e.currentTarget.valueAsNumber)} />
           </div>
           <div className="walk-axis" aria-hidden="true">
             <span>A</span>
-            <span>Yükseklik profili</span>
+            <span>Elevation profile</span>
             <span>B</span>
           </div>
         </div>
@@ -137,17 +137,17 @@ export function JezeroWalkControls(p: Props) {
       <div className="walk-toolbar">
         <div className="walk-transport">
           <button type="button" className="walk-play" onClick={() => p.setPlaying(!p.playing)}
-            aria-label={p.playing ? 'Duraklat' : 'Başlat'}>
+            aria-label={p.playing ? 'Pause' : 'Play'}>
             <span aria-hidden="true">{p.playing ? '❚❚' : '▶'}</span>
           </button>
-          <button type="button" className="walk-reset" aria-label="Sıfırla"
+          <button type="button" className="walk-reset" aria-label="Reset"
             onClick={() => { p.setPlaying(false); p.setDistanceM(0) }}>
             <span aria-hidden="true">⟳</span>
           </button>
           <SpeedMenu value={p.speedMps} onChange={p.setSpeedMps} />
         </div>
 
-        <div className="walk-modes" role="group" aria-label="Kamera modu">
+        <div className="walk-modes" role="group" aria-label="Camera mode">
           {modes.map(([mode, label]) => (
             <button key={mode} type="button" aria-pressed={mode === p.cameraMode} onClick={() => p.setCameraMode(mode)}>
               {label}
@@ -156,9 +156,9 @@ export function JezeroWalkControls(p: Props) {
         </div>
 
         <dl className="walk-telemetry">
-          <div><dt>Kot</dt><dd>{p.telemetry ? `${integer.format(p.telemetry.elevationM)} m` : '—'}</dd></div>
-          <div><dt>Eğim</dt><dd>{p.telemetry ? `${decimal.format(p.telemetry.slopeDeg)}°` : '—'}</dd></div>
-          <div><dt>Yön</dt><dd>{p.telemetry ? `${String(Math.round((p.telemetry.headingDeg + 360) % 360) % 360).padStart(3, '0')}°` : '—'}</dd></div>
+          <div><dt>Elevation</dt><dd>{p.telemetry ? `${integer.format(p.telemetry.elevationM)} m` : '—'}</dd></div>
+          <div><dt>Slope</dt><dd>{p.telemetry ? `${decimal.format(p.telemetry.slopeDeg)}°` : '—'}</dd></div>
+          <div><dt>Heading</dt><dd>{p.telemetry ? `${String(Math.round((p.telemetry.headingDeg + 360) % 360) % 360).padStart(3, '0')}°` : '—'}</dd></div>
         </dl>
       </div>
     </>

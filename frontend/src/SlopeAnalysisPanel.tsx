@@ -10,10 +10,10 @@ import {
 
 // Rota uyarısıyla aynı eşikler ve renkler.
 const legend: { level: DifficultyLevel; range: string; label: string }[] = [
-  { level: 'easy', range: `≤ ${COMFORTABLE_MAX_DEG}°`, label: 'Yürünebilir' },
-  { level: 'hard', range: `${COMFORTABLE_MAX_DEG}–${RECOMMENDED_MAX_DEG}°`, label: 'Zorlu' },
-  { level: 'discouraged', range: `${RECOMMENDED_MAX_DEG}–${DANGEROUS_MIN_DEG}°`, label: 'Önerilmez' },
-  { level: 'dangerous', range: `> ${DANGEROUS_MIN_DEG}°`, label: 'Tehlikeli' },
+  { level: 'easy', range: `≤ ${COMFORTABLE_MAX_DEG}°`, label: 'Walkable' },
+  { level: 'hard', range: `${COMFORTABLE_MAX_DEG}–${RECOMMENDED_MAX_DEG}°`, label: 'Challenging' },
+  { level: 'discouraged', range: `${RECOMMENDED_MAX_DEG}–${DANGEROUS_MIN_DEG}°`, label: 'Not recommended' },
+  { level: 'dangerous', range: `> ${DANGEROUS_MIN_DEG}°`, label: 'Dangerous' },
 ]
 
 // Aralığın alt sınırından seviyeyi bulur: "20-25" → 20 → 20°'yi aşan ilk dilim önerilmez sayılır.
@@ -23,10 +23,10 @@ function binLevel(range: string): DifficultyLevel {
 }
 
 const metrics = [
-  ['mean', 'Ortalama'],
-  ['median', 'Medyan'],
+  ['mean', 'Mean'],
+  ['median', 'Median'],
   ['p95', 'P95'],
-  ['max', 'Maksimum'],
+  ['max', 'Maximum'],
 ] as const
 
 type SlopeAnalysis = {
@@ -34,11 +34,11 @@ type SlopeAnalysis = {
   distribution: { range: string; pixels: number; percentage: number }[]
 }
 
-const decimal = new Intl.NumberFormat('tr-TR', {
+const decimal = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 })
-const integer = new Intl.NumberFormat('tr-TR')
+const integer = new Intl.NumberFormat('en-US')
 const dataUrl = `${import.meta.env.BASE_URL}data/jezero_4camera_slope_analysis.json`
 
 function isSlopeAnalysis(value: unknown): value is SlopeAnalysis {
@@ -72,10 +72,10 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
     async function load() {
       try {
         const response = await fetch(dataUrl, { signal: controller.signal })
-        if (!response.ok) throw new Error('Eğim analizi dosyası alınamadı.')
+        if (!response.ok) throw new Error('Could not fetch the slope analysis file.')
 
         const result: unknown = await response.json()
-        if (!isSlopeAnalysis(result)) throw new Error('Geçersiz eğim analizi.')
+        if (!isSlopeAnalysis(result)) throw new Error('Invalid slope analysis.')
         if (!controller.signal.aborted) setData(result)
       } catch {
         if (!controller.signal.aborted) setFailed(true)
@@ -92,14 +92,14 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
     <aside className="slope-panel" aria-labelledby="slope-panel-title">
       <header className="slope-panel-header">
         <div>
-          <h2 id="slope-panel-title">Eğim analizi</h2>
-          {pixels !== undefined && <p>Jezero · 1 km² · {integer.format(pixels)} piksel</p>}
+          <h2 id="slope-panel-title">Slope analysis</h2>
+          {pixels !== undefined && <p>Jezero · 1 km² · {integer.format(pixels)} pixels</p>}
         </div>
-        <button type="button" onClick={onClose}>Kapat</button>
+        <button type="button" onClick={onClose}>Close</button>
       </header>
 
-      {failed && <p role="alert">Eğim analizi yüklenemedi. Veri dosyasını kontrol et.</p>}
-      {!failed && !data && <p role="status">Eğim analizi yükleniyor…</p>}
+      {failed && <p role="alert">Could not load the slope analysis. Check the data file.</p>}
+      {!failed && !data && <p role="status">Loading slope analysis…</p>}
 
       {data && (
         <>
@@ -111,9 +111,9 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
               </div>
             ))}
           </dl>
-          <p>Piksellerin yaklaşık %95’i {decimal.format(data.statistics.p95)}° veya daha düşük eğime sahip.</p>
+          <p>About 95% of pixels have a slope of {decimal.format(data.statistics.p95)}° or lower.</p>
 
-          <h3>Piksellerin eğim dağılımı</h3>
+          <h3>Pixel slope distribution</h3>
           <ul className="slope-distribution">
             {data.distribution.map((bin) => (
               <li key={bin.range}>
@@ -121,11 +121,11 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
                 <span className="slope-track" aria-hidden="true">
                   <span data-level={binLevel(bin.range)} style={{ width: `${bin.percentage}%` }} />
                 </span>
-                <span>%{decimal.format(bin.percentage)}</span>
+                <span>{decimal.format(bin.percentage)}%</span>
               </li>
             ))}
           </ul>
-          <ul className="slope-legend" aria-label="Yürüyüş zorluğu eşikleri">
+          <ul className="slope-legend" aria-label="Walking difficulty thresholds">
             {legend.map((item) => (
               <li key={item.level} data-level={item.level}>
                 <i aria-hidden="true" />
@@ -133,8 +133,8 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
               </li>
             ))}
           </ul>
-          <p>Eşikler yaklaşık değerlerdir; uzay giysili insan yürüyüşü için rota uyarılarında kullanılır.</p>
-          <p>Eğim aralıkları parseli betimler. Rover güvenlik sınırları ayrıca doğrulanmalıdır.</p>
+          <p>Thresholds are approximate; they are used in route warnings for a person walking in a spacesuit.</p>
+          <p>Slope ranges describe the parcel. Rover safety limits must be verified separately.</p>
         </>
       )}
     </aside>

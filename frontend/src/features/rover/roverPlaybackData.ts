@@ -15,17 +15,17 @@ export type RoverPlaybackData = {
 
 export async function loadRoverPlayback(signal?: AbortSignal): Promise<RoverPlaybackData> {
   const response = await fetch(`${import.meta.env.BASE_URL}data/jezero-rover-playback.json`, { signal })
-  if (!response.ok) throw new Error(`Rover verisi okunamadı: HTTP ${response.status}`)
+  if (!response.ok) throw new Error(`Could not read the rover data: HTTP ${response.status}`)
   const data: unknown = await response.json()
   if (!data || typeof data !== 'object' || !('frames' in data) || !Array.isArray(data.frames) || data.frames.length < 2) {
-    throw new Error('Rover playback JSON yapısı geçersiz.')
+    throw new Error('Invalid rover playback JSON structure.')
   }
   const frames = data.frames as RoverFrame[]
   if (frames.some(f => ![f.projectedX, f.projectedY, f.elevationM, f.slopeDeg, f.distanceM].every(Number.isFinite))) {
-    throw new Error('Rover verisinde geçersiz koordinat veya ölçüm var.')
+    throw new Error('The rover data contains an invalid coordinate or measurement.')
   }
   for (let i = 1; i < frames.length; i++) {
-    if (frames[i].distanceM <= frames[i - 1].distanceM) throw new Error('Rover mesafeleri artan sırada değil.')
+    if (frames[i].distanceM <= frames[i - 1].distanceM) throw new Error('Rover distances are not in increasing order.')
   }
   return data as RoverPlaybackData
 }

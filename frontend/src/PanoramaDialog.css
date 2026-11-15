@@ -1,78 +1,250 @@
-.panorama-dialog {
+/* =========================================================
+   JEZERO | PANORAMA GÖRÜNTÜLEYİCİ
+   Rota paneliyle aynı dil: koyu cam, mono etiketler, amber vurgu.
+   ========================================================= */
+
+.pd-dialog {
+  --amber: #ffb25b;
+  --ink: #f3ece4;
+  --mute: #a39c93;
+
   box-sizing: border-box;
-  width: min(1120px, calc(100% - 32px));
+  width: min(1280px, calc(100% - 2 * clamp(12px, 2.5vw, 40px)));
+  height: min(860px, calc(100dvh - 2 * clamp(12px, 3vh, 40px)));
   max-width: none;
-  max-height: calc(100dvh - 32px);
+  max-height: none;
   padding: 0;
-  overflow: auto;
-  color: #f4eee8;
-  background: #14171c;
-  border: 1px solid #383f49;
-  border-radius: 16px;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: 'Instrument Sans', 'Segoe UI', sans-serif;
+  background: #07080b;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 28px;
+  box-shadow:
+    0 40px 120px rgba(0, 0, 0, .65),
+    0 0 0 1px rgba(255, 140, 60, .06);
 }
 
-.panorama-dialog::backdrop {
-  background: rgb(6 8 11 / 82%);
-}
-
-.panorama-header,
-.panorama-credit {
+.pd-dialog[open] {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  animation: pd-in .38s cubic-bezier(.19, 1, .22, 1) both;
+}
+
+.pd-dialog::backdrop {
+  background: rgba(4, 5, 8, .8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  animation: pd-fade .3s ease-out both;
+}
+
+@keyframes pd-in {
+  from { opacity: 0; transform: translateY(14px) scale(.985); }
+}
+@keyframes pd-fade { from { opacity: 0; } }
+
+/* ---------- Üst şerit ---------- */
+.pd-header {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 24px;
-  padding: 16px 20px;
+  gap: 16px 24px;
+  padding: 16px 18px 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  background:
+    linear-gradient(135deg, rgba(255, 140, 60, .09), transparent 45%),
+    rgba(12, 13, 17, .98);
 }
 
-.panorama-header h2 {
-  margin: 0;
-  font-size: clamp(1.15rem, 2.8vw, 1.6rem);
-}
+.pd-heading { min-width: 0; }
 
-.panorama-header p {
-  margin: 6px 0 0;
-  color: #c4ccd6;
-  font-size: 0.85rem;
-}
-
-.panorama-actions {
+.pd-kicker {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+  margin: 0 0 7px;
+  color: var(--amber);
+  font: 400 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .24em;
+  text-transform: uppercase;
 }
 
-.panorama-actions form {
+.pd-kicker::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--amber);
+}
+
+.pd-title {
   margin: 0;
+  font: 500 clamp(20px, 2.2vw, 28px)/1.1 'Instrument Sans', 'Segoe UI', sans-serif;
+  letter-spacing: -.01em;
+  text-wrap: balance;
 }
 
-.panorama-actions a,
-.panorama-actions button {
-  display: inline-block;
-  padding: 8px 12px;
-  color: #f4eee8;
-  background: #21262e;
-  border: 1px solid #4a5360;
-  border-radius: 8px;
-  font: inherit;
+.pd-meta {
+  margin: 7px 0 0;
+  color: var(--mute);
+  font: 400 11px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* ---------- Eylemler ---------- */
+.pd-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pd-actions form { margin: 0; }
+
+.pd-link,
+.pd-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--ink);
+  font: 400 13px 'Instrument Sans', 'Segoe UI', sans-serif;
   text-decoration: none;
   cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
 }
 
-.panorama-actions :focus-visible {
-  outline: 2px solid #79e2ff;
+.pd-link {
+  padding: 0 20px;
+  border: 1px solid rgba(255, 178, 91, .4);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .03);
+  white-space: nowrap;
+}
+
+.pd-close {
+  width: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .03);
+}
+
+.pd-link:hover,
+.pd-close:hover {
+  color: var(--amber);
+  border-color: var(--amber);
+  background: rgba(255, 178, 91, .1);
+}
+
+.pd-link:focus-visible,
+.pd-close:focus-visible {
+  outline: 2px solid var(--amber);
   outline-offset: 3px;
 }
 
-.panorama-frame {
-  display: block;
-  width: 100%;
-  height: min(62dvh, 640px);
-  border: 0;
-  background: #090c10;
+/* ---------- Görüntü alanı ---------- */
+.pd-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #050507;
 }
 
-.panorama-credit {
-  color: #c4ccd6;
-  font-size: 0.8rem;
+.pd-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  transition: opacity .5s ease-out;
+}
+
+.pd-frame[data-loaded='true'] { opacity: 1; }
+
+/* Yükleniyor */
+.pd-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--mute);
+  font: 400 11px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  transition: opacity .4s;
+}
+
+.pd-loading[data-hidden='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pd-loading i {
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid rgba(255, 255, 255, .12);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: pd-spin 1s linear infinite;
+}
+
+@keyframes pd-spin { to { transform: rotate(360deg); } }
+
+/* Kaynak notu: sağ altta, küçük cam etiket (soldaki iç araç çubuğuyla çakışmaz) */
+.pd-credit {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  max-width: calc(100% - 28px);
+  padding: 8px 14px 9px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 14px;
+  background: rgba(8, 9, 12, .7);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--mute);
+  font: 400 9px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .14em;
+  text-align: right;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ---------- Duyarlı ---------- */
+@media (max-width: 700px) {
+  .pd-dialog {
+    width: 100%;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .pd-header { padding: 14px 14px 14px 18px; }
+  .pd-link { padding: 0 14px; }
+  .pd-meta { letter-spacing: .08em; }
+  .pd-credit { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-dialog[open],
+  .pd-dialog::backdrop,
+  .pd-loading i { animation: none; }
+
+  .pd-frame { transition: none; }
 }

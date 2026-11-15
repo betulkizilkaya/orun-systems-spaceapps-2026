@@ -123,7 +123,7 @@ export function AstronautModel({
     useEffect(() => {
         if (!walkName) {
             console.warn(
-                'Astronot modelinde animasyon bulunamadı.'
+                'No animation found in the astronaut model.'
             )
             return
         }

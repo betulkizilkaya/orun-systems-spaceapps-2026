@@ -15,7 +15,7 @@ type GeologyData = {
 }
 
 export const GEOLOGY_UNITS = {
-  cr: { label: 'Krater kenarı (cr)', color: '#ffd27a' },
+  cr: { label: 'Crater rim (cr)', color: '#ffd27a' },
   Nnp1: { label: 'Nili Planum 1 (Nnp1)', color: '#79e2ff' },
 }
 
@@ -38,7 +38,7 @@ export function GeologyLayer({
       )
 
       if (!response.ok) {
-        throw new Error(`Jeoloji dosyası açılamadı (HTTP ${response.status}).`)
+        throw new Error(`Could not open the geology file (HTTP ${response.status}).`)
       }
 
       const geology: GeologyData = await response.json()
@@ -50,7 +50,7 @@ export function GeologyLayer({
         )
 
       if (!boundsMatch) {
-        throw new Error('Jeoloji katmanı ve DEM farklı parselleri kapsıyor.')
+        throw new Error('The geology layer and the DEM cover different parcels.')
       }
 
       if (!controller.signal.aborted) setData(geology)
@@ -58,7 +58,7 @@ export function GeologyLayer({
 
     load().catch((error: unknown) => {
       if (controller.signal.aborted) return
-      onError(error instanceof Error ? error.message : 'Jeoloji yüklenemedi.')
+      onError(error instanceof Error ? error.message : 'Could not load geology.')
     })
 
     return () => controller.abort()

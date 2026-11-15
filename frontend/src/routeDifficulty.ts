@@ -35,8 +35,8 @@ export type RouteAssessment = {
     reason: string
 }
 
-const fmt = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 })
-const fmt1 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 })
+const fmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
+const fmt1 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
 export function assessRoute(
     maxSlope: number,
@@ -49,29 +49,29 @@ export function assessRoute(
     if (level === 'dangerous') {
         return {
             level, discouraged: true, steepMeters, dangerousMeters,
-            title: 'Rota önerilmez · tehlikeli eğim',
-            reason: `Rotanın yaklaşık ${fmt.format(dangerousMeters)} m'lik kısmı ${DANGEROUS_MIN_DEG}°'yi aşıyor (maks. ${max}°). ` +
-                `Gevşek regolit bu eğimde kayar; tırmanış ekipmanı olmadan yürümek düşme riski taşır.`,
+            title: 'Route not recommended · dangerous slope',
+            reason: `About ${fmt.format(dangerousMeters)} m of the route exceeds ${DANGEROUS_MIN_DEG}° (max. ${max}°). ` +
+                `Loose regolith slides at this slope; walking without climbing gear risks a fall.`,
         }
     }
     if (level === 'discouraged') {
         return {
             level, discouraged: true, steepMeters, dangerousMeters,
-            title: 'Rota önerilmez · çok dik',
-            reason: `Rotanın yaklaşık ${fmt.format(steepMeters)} m'lik kısmı ${RECOMMENDED_MAX_DEG}°'yi aşıyor (maks. ${max}°). ` +
-                `Bu eğimde yürümek aşırı yorucu; uzay giysisiyle denge ve ayak tutuşu zorlaşır, oksijen tüketimi artar.`,
+            title: 'Route not recommended · very steep',
+            reason: `About ${fmt.format(steepMeters)} m of the route exceeds ${RECOMMENDED_MAX_DEG}° (max. ${max}°). ` +
+                `Walking at this slope is extremely tiring; balance and footing suffer in a spacesuit and oxygen use rises.`,
         }
     }
     if (level === 'hard') {
         return {
             level, discouraged: false, steepMeters, dangerousMeters,
-            title: 'Zorlu rota',
-            reason: `Maks. eğim ${max}°. Yürünebilir ama yorucu; mola payı bırakmak iyi olur.`,
+            title: 'Challenging route',
+            reason: `Max. slope ${max}°. Walkable but tiring; allow time for breaks.`,
         }
     }
     return {
         level, discouraged: false, steepMeters, dangerousMeters,
-        title: 'Rota uygun',
-        reason: `Maks. eğim ${max}°, rahat yürünebilir.`,
+        title: 'Route suitable',
+        reason: `Max. slope ${max}°, comfortably walkable.`,
     }
 }

@@ -30,7 +30,7 @@ const PIXELS_PER_ROUTE_CELL = 10
 async function readRaster(name: 'dem' | 'slope', signal: AbortSignal) {
     const url = `${import.meta.env.BASE_URL}data/jezero-demo-${name}.tif`
     const response = await fetch(url, { signal })
-    if (!response.ok) throw new Error(`Jezero ${name} dosyası yüklenemedi (HTTP ${response.status}).`)
+    if (!response.ok) throw new Error(`Could not load the Jezero ${name} file (HTTP ${response.status}).`)
     const tiff = await fromArrayBuffer(await response.arrayBuffer())
     const image = await tiff.getImage()
     const values = await image.readRasters({ samples: [0], interleave: true })
@@ -48,12 +48,12 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
     signal.throwIfAborted()
     if (dem.width !== slope.width || dem.height !== slope.height ||
         !matches(dem.bounds, slope.bounds) || !matches(dem.resolution, slope.resolution)) {
-        throw new Error('DEM ve eğim rasterı aynı piksel ızgarasında değil.')
+        throw new Error('The DEM and slope rasters are not on the same pixel grid.')
     }
     let minimum = Infinity
     for (const elevation of dem.values) {
         if (!Number.isFinite(elevation) || elevation === dem.noData) {
-            throw new Error('Bu DEM’de veri boşluğu var. Arazi maskesi gerekiyor.')
+            throw new Error('This DEM has data gaps. A terrain mask is required.')
         }
         minimum = Math.min(minimum, elevation)
     }
@@ -133,12 +133,12 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
             const [endRow, endCol] = sceneToCell(end)
 
             // Artık sadece veri boşluğu (NoData) başlangıç/bitişte olursa buraya düşer.
-            console.warn('[Jezero A*] Başlangıç/bitiş hücresinde eğim verisi yok', {
+            console.warn('[Jezero A*] No slope data at the start/end cell', {
                 startCell: [startRow, startCol],
                 startSlope: grid[startRow][startCol],
                 endCell: [endRow, endCol],
                 endSlope: grid[endRow][endCol],
-                slopeLimit: 'yok (yumuşak ceza)',
+                slopeLimit: 'none (soft penalty)',
             })
 
             return null

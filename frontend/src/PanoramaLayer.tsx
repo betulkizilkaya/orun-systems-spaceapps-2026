@@ -56,7 +56,7 @@ export function PanoramaLayer({
       )
 
       if (!response.ok) {
-        throw new Error(`Panorama konumları yüklenemedi (HTTP ${response.status}).`)
+        throw new Error(`Could not load panorama locations (HTTP ${response.status}).`)
       }
 
       const data: PanoramaPoint[] = await response.json()
@@ -77,7 +77,7 @@ export function PanoramaLayer({
             point.projectedY > north,
         )
       ) {
-        throw new Error('Panorama konumları bu parselin verisiyle eşleşmiyor.')
+        throw new Error("Panorama locations do not match this parcel's data.")
       }
 
       if (!controller.signal.aborted) setPoints(data)
@@ -85,7 +85,7 @@ export function PanoramaLayer({
 
     load().catch((error: unknown) => {
       if (controller.signal.aborted) return
-      onError(error instanceof Error ? error.message : 'Panorama konumları okunamadı.')
+      onError(error instanceof Error ? error.message : 'Could not read panorama locations.')
     })
 
     return () => controller.abort()
@@ -96,7 +96,7 @@ export function PanoramaLayer({
       {points.map(({ id, projectedX, projectedY }) => {
         const panorama = PANORAMAS[id]
         const [x, y, z] = terrain.projectToSurface(projectedX, projectedY)
-        const label = `${panorama.name} · Yaklaşık çekim konumu`
+        const label = `${panorama.name} · Approximate capture location`
 
         return (
           // Pin, yer noktasına oturur: alt-orta nokta araziye değer, chip direğin ucunda durur.
@@ -105,7 +105,7 @@ export function PanoramaLayer({
               <button
                 type="button"
                 className="pano-chip"
-                aria-label={`${label} · Panoramayı görüntüle`}
+                aria-label={`${label} · View panorama`}
                 aria-haspopup="dialog"
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={(event) => {

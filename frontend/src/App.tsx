@@ -46,10 +46,10 @@ type MapView = '2d' | '3d'
 type JezeroTerrainData = Awaited<ReturnType<typeof loadJezeroTerrain>>
 
 const MARKER_OFFSET = 1.2
-const distanceFormat = new Intl.NumberFormat('tr-TR', {
+const distanceFormat = new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 0,
 })
-const slopeFormat = new Intl.NumberFormat('tr-TR', {
+const slopeFormat = new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 1,
 })
 
@@ -63,11 +63,11 @@ function describeRouteComparison(
         Math.round(weighted.maxSlope * 10) - Math.round(distanceFocused.maxSlope * 10)
 
     const distanceSummary = distanceDifference === 0
-        ? 'Yatay mesafeler metreye yuvarlandığında eşit.'
-        : `Eğim ağırlıklı rota yatayda ${distanceFormat.format(Math.abs(distanceDifference))} m daha ${distanceDifference > 0 ? 'uzun' : 'kısa'}.`
+        ? 'Horizontal distances are equal when rounded to the nearest meter.'
+        : `The slope-weighted route is ${distanceFormat.format(Math.abs(distanceDifference))} m ${distanceDifference > 0 ? 'longer' : 'shorter'} horizontally.`
     const slopeSummary = slopeDifference === 0
-        ? 'Maksimum hücre eğimleri gösterilen hassasiyette eşit.'
-        : `Eğim ağırlıklı rotanın maksimum hücre eğimi ${slopeFormat.format(Math.abs(slopeDifference) / 10)}° daha ${slopeDifference > 0 ? 'yüksek' : 'düşük'}.`
+        ? 'Maximum cell slopes are equal at the precision shown.'
+        : `The slope-weighted route's maximum cell slope is ${slopeFormat.format(Math.abs(slopeDifference) / 10)}° ${slopeDifference > 0 ? 'higher' : 'lower'}.`
 
     return `${distanceSummary} ${slopeSummary}`
 }
@@ -235,7 +235,7 @@ export default function App() {
                     setRoverError(
                         error instanceof Error
                             ? error.message
-                            : 'Simülasyon rotası yüklenemedi.',
+                            : 'Could not load the simulation route.',
                     )
                 }
             })
@@ -280,7 +280,7 @@ export default function App() {
                 if (controller.signal.aborted) return
 
                 setTerrainError(
-                    error instanceof Error ? error.message : 'Jezero verisi okunamadı.',
+                    error instanceof Error ? error.message : 'Could not read the Jezero data.',
                 )
             })
 
@@ -421,7 +421,7 @@ export default function App() {
             setView('3d')
             setShowSlopeAnalysis(false)
         } catch {
-            setExampleStatus('Örnek rota yüklenemedi. Rota JSON dosyasını ve arazi verisini kontrol et.')
+            setExampleStatus('Could not load the example route. Check the route JSON file and the terrain data.')
         } finally {
             setLoadingExample(false)
         }
@@ -472,26 +472,26 @@ export default function App() {
     }
 
     let status = isTopView
-        ? 'Haritayı kaydırmak için sürükle. Yakınlaşmak için tekerleği kullan.'
-        : 'Araziyi döndürmek için sürükle. Yakınlaşmak için tekerleği kullan.'
+        ? 'Drag to pan the map. Use the wheel to zoom.'
+        : 'Drag to rotate the terrain. Use the wheel to zoom.'
 
     if (selecting === 'start') {
-        status = 'Başlangıç noktasını yerleştirmek için araziye tıkla.'
+        status = 'Click the terrain to place the start point.'
     } else if (selecting === 'end') {
-        status = 'Bitiş noktasını yerleştirmek için araziye tıkla.'
+        status = 'Click the terrain to place the end point.'
     } else if (start && end) {
-        status = route ? '' : 'Bu iki nokta arasında rota bulunamadı.'
+        status = route ? '' : 'No route found between these two points.'
     } else if (start) {
-        status = 'Başlangıç yerleştirildi. Şimdi bitiş noktasını seç.'
+        status = 'Start placed. Now pick the end point.'
     } else if (end) {
-        status = 'Bitiş yerleştirildi. Şimdi başlangıç noktasını seç.'
+        status = 'End placed. Now pick the start point.'
     }
 
     return (
         <>
             <button
                 type="button"
-                aria-label="Görev sesleri"
+                aria-label="Mission sounds"
                 aria-pressed={soundEnabled}
                 onClick={toggleSound}
                 style={{
@@ -508,7 +508,7 @@ export default function App() {
                     cursor: 'pointer',
                 }}
             >
-                {soundEnabled ? 'Ses açık' : 'Ses kapalı'}
+                {soundEnabled ? 'Sound on' : 'Sound off'}
             </button>
             <div
                 className={`horizon-page ${exploring ? 'is-exploring' : 'is-intro'}`}
@@ -525,7 +525,7 @@ export default function App() {
                              inset: 0,
                              overflow: 'hidden',
                              opacity: exploring ? 0 : 1,
-                         }} inert={exploring} aria-hidden={exploring} aria-label="Jezero · Mars rota laboratuvarı">
+                         }} inert={exploring} aria-hidden={exploring} aria-label="Jezero · Mars route lab">
                     <div className="opening-frame">
                         <img className="opening-image"
                              src={`${import.meta.env.BASE_URL}mission/jezero-opening.png`}
@@ -561,6 +561,14 @@ export default function App() {
                    C 946 451 945 447 938 444
                    C 927 441 917 438 910 434"
                             />
+                            <g className="opening-tag" aria-hidden="true">
+                                <line x1="1044" y1="693" x2="1044" y2="722" />
+                                <circle cx="1044" cy="681" r="11" fill="none" />
+                                <circle cx="1044" cy="681" r="4" />
+                                <rect x="860" y="722" width="224" height="54" rx="12" />
+                                <text x="878" y="745">ROUTE PREVIEW</text>
+                                <text x="878" y="765">START → END</text>
+                            </g>
                         </svg>
                         <img
                             className="opening-logo"
@@ -569,29 +577,28 @@ export default function App() {
                             width={272}
                             height={98}
                         />
-                        <svg className="opening-instrument" viewBox="0 0 620 540" aria-hidden="true">
-                            <defs>
-                                <linearGradient id="jezero-arc">
-                                    <stop stopColor="#e9a96e" stopOpacity="0" />
-                                    <stop offset=".38" stopColor="#f4c594" />
-                                    <stop offset="1" stopColor="#d5b89c" stopOpacity="0" />
-                                </linearGradient>
-                            </defs>
-                            <path className="opening-arc" d="M 50 153 C 76 63 182 -6 268 37 M 50 177 C 57 233 114 279 177 261" />
-                            <path className="opening-ticks" d="M 30 151 h 15 M 214 0 v 13 M 214 18 v 11 M 141 253 v 11 M 141 270 v 11 M 523 151 h 16 M 570 501 v -6 h 6 M 592 495 h 6 v 6 M 598 517 v 6 h -6 M 576 523 h -6 v -6" />
-                            <path className="opening-link" d="M 118 369 C 132 467 345 509 584 510" />
-                            <circle className="opening-beacon" cx="584" cy="510" r="2" />
-                        </svg>
+                        <div className="opening-meta" aria-hidden="true">
+                            <span>18.38° N · 77.58° E</span>
+                            <span>JEZERO CRATER · MARS</span>
+                        </div>
                         <div className="opening-copy">
+                            <p className="opening-eyebrow">
+                                <span className="opening-eyebrow-line" aria-hidden="true" />
+                                TERRAIN ANALYSIS
+                            </p>
 
                             <h1 className="opening-heading">
                                 <img
                                     src={`${import.meta.env.BASE_URL}mission/jezero-heading.png`}
-                                    alt="Jezero. Arazinin eğimini incele, yürüyüş rotanı çiz."
+                                    alt="Jezero. Inspect the terrain slope, plan your walking route."
                                     width={466}
                                     height={178}
                                 />
                             </h1>
+
+                            <p className="opening-description" aria-hidden="true">
+                                Inspect the slope of the terrain,<br />plan your walking route.
+                            </p>
 
                             <button type="button" className="opening-button" disabled={!terrain}
                                     onClick={() => {
@@ -602,15 +609,23 @@ export default function App() {
                                         })
                                     }}>
                                 <span className="opening-waypoint" aria-hidden="true" />
-                                Rota planlayıcıyı aç <span className="opening-arrow" aria-hidden="true">⟶</span>
+                                Open route planner
+                                <svg className="opening-arrow" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M3 12h17M14 6l6 6-6 6" />
+                                </svg>
                             </button>
                             {!terrain && (
                                 <p className="opening-status" role="status">
-                                    {terrainError ?? 'Arazi yükleniyor…'}
+                                    {terrainError ?? 'Loading terrain…'}
                                 </p>
                             )}
                         </div>
-                        <small className="opening-credit">Temsili görsel</small>
+                        <ol className="opening-steps" aria-hidden="true">
+                            <li><b>01</b>Inspect slope</li>
+                            <li><b>02</b>Plan your route</li>
+                            <li><b>03</b>Watch the walk</li>
+                        </ol>
+                        <small className="opening-credit">This image was generated by AI</small>
                     </div>
                 </section>
             </div>
@@ -622,8 +637,8 @@ export default function App() {
                         tabIndex={-1}
                         aria-label={
                             isTopView
-                                ? 'Jezero demo alanının üstten görünümü'
-                                : 'Jezero demo alanının üç boyutlu görünümü'
+                                ? 'Top-down view of the Jezero demo area'
+                                : '3D view of the Jezero demo area'
                         }
                     >
 
@@ -650,7 +665,7 @@ export default function App() {
                             gl={{ alpha: true }}
                             onCreated={({ gl }) => gl.setClearAlpha(0)}
                             dpr={[1, 1.5]}
-                            fallback={<p>Tarayıcıda harita açılamadı.</p>}
+                            fallback={<p>The map could not be opened in this browser.</p>}
                         >
                             <ambientLight intensity={0.58} />
                             <directionalLight position={[-45, 35, 25]} color="#ffe3ce" intensity={2.25} />
@@ -810,7 +825,7 @@ export default function App() {
                                 aria-pressed={isTopView}
                                 onClick={() => void switchMapView('2d')}
                             >
-                                2B · Üstten
+                                2D · Top-down
                             </button>
 
                             <button
@@ -821,7 +836,7 @@ export default function App() {
                                     void switchMapView('3d')
                                 }}
                             >
-                                3B · Arazi
+                                3D · Terrain
                             </button>
 
                             <button
@@ -830,7 +845,7 @@ export default function App() {
                                 disabled={!terrain}
                                 onClick={toggleGeology}
                             >
-                                Jeoloji
+                                Geology
                             </button>
 
                             <button
@@ -839,7 +854,7 @@ export default function App() {
                                 disabled={!terrain}
                                 onClick={togglePanoramas}
                             >
-                                Panoramalar
+                                Panoramas
                             </button>
 
                             <button
@@ -847,12 +862,12 @@ export default function App() {
                                 aria-expanded={showSlopeAnalysis}
                                 onClick={() => setShowSlopeAnalysis((visible) => !visible)}
                             >
-                                Eğim analizi
+                                Slope analysis
                             </button>
 
                         </div>
                         <div className="mission-map-scale">
-                            {isTopView ? 'Üstten görünüm' : 'Dikey ölçek 1×'}
+                            {isTopView ? 'Top-down view' : 'Vertical scale 1×'}
                         </div>
                     </section>
                     <div className="jezero-side-stack">
@@ -862,15 +877,15 @@ export default function App() {
                             <h1 className="jz-sr-only">Jezero</h1>
                         </div>
                     </header>
-                        <aside className="jz-panel" aria-label="Rota planlama ve astronot simülasyonu">
+                        <aside className="jz-panel" aria-label="Route planning and astronaut simulation">
                             <div className="jz-top">
                                 <span className="jz-label">Mission 01</span>
                                 <span className="jz-label jz-state" data-ready={Boolean(route)}>
-                                    <i aria-hidden="true" /> {route ? 'Rota hazır' : 'Rota bekleniyor'}
+                                    <i aria-hidden="true" /> {route ? 'Route ready' : 'Awaiting route'}
                                 </span>
                             </div>
-                            <p className="jz-label jz-kicker">1 km² alan · 18,38° K · 77,58° D</p>
-                            <h2 className="jz-title">Keşif rotası</h2>
+                            <p className="jz-label jz-kicker">1 km² area · 18.38° N · 77.58° E</p>
+                            <h2 className="jz-title">Exploration route</h2>
 
                             <div className="jz-route">
                                 <span className="jz-spine" aria-hidden="true">
@@ -883,7 +898,7 @@ export default function App() {
                                 <i className="jz-node jz-node-b" data-set={Boolean(end)} aria-hidden="true" />
 
                                 <div className="jz-endpoint">
-                                    <span className="jz-label">A · Başlangıç</span>
+                                    <span className="jz-label">A · Start</span>
                                     <button
                                         type="button"
                                         className="jz-pill"
@@ -891,27 +906,27 @@ export default function App() {
                                         disabled={!terrain || loadingExample}
                                         onClick={() => setSelecting('start')}
                                     >
-                                        {start ? 'Değiştir' : 'Seç'}
+                                        {start ? 'Change' : 'Select'}
                                     </button>
                                 </div>
 
                                 <dl className="jz-metrics">
                                     <div className="jz-metric">
-                                        <dt className="jz-label">Yatay mesafe</dt>
+                                        <dt className="jz-label">Horizontal distance</dt>
                                         <dd className="jz-big">
                                             {route ? distanceFormat.format(route.distanceMeters) : '—'}
                                             <small> m</small>
                                         </dd>
                                     </div>
                                     <div className="jz-metric jz-gauge">
-                                        <dt className="jz-label">Maks. eğim</dt>
+                                        <dt className="jz-label">Max. slope</dt>
                                         <dd>
                                             <svg
                                                 width="118"
                                                 height="68"
                                                 viewBox="0 0 120 68"
                                                 role="img"
-                                                aria-label={route ? `Maksimum eğim ${slopeFormat.format(route.maxSlope)} derece` : 'Eğim verisi yok'}
+                                                aria-label={route ? `Maximum slope ${slopeFormat.format(route.maxSlope)} degrees` : 'No slope data'}
                                             >
                                                 <path className="jz-gauge-track" d="M10 62A50 50 0 0 1 110 62" pathLength={100} />
                                                 <path
@@ -930,7 +945,7 @@ export default function App() {
                                 </dl>
 
                                 <div className="jz-endpoint">
-                                    <span className="jz-label">B · Bitiş</span>
+                                    <span className="jz-label">B · End</span>
                                     <button
                                         type="button"
                                         className="jz-pill"
@@ -938,25 +953,25 @@ export default function App() {
                                         disabled={!terrain || loadingExample}
                                         onClick={() => setSelecting('end')}
                                     >
-                                        {end ? 'Değiştir' : 'Seç'}
+                                        {end ? 'Change' : 'Select'}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* YENİ: Tahmini varış süresi kartı */}
+                            {/* Estimated arrival time card */}
                             {route?.walking && (
                                 <div className="jz-arrival" role="status">
-                                    <span className="jz-label">Tahmini varış süresi</span>
+                                    <span className="jz-label">Estimated arrival time</span>
                                     <strong className="jz-arrival-time">
                                         {formatDuration(route.walking.seconds)}
                                     </strong>
                                     <span className="jz-arrival-detail">
-                                        Ort. {slopeFormat.format(route.walking.averageSpeedKmh)} km/sa
+                                        Avg. {slopeFormat.format(route.walking.averageSpeedKmh)} km/h
                                         {' · '}↑ {distanceFormat.format(route.walking.ascentMeters)} m
                                         {' · '}↓ {distanceFormat.format(route.walking.descentMeters)} m
                                     </span>
                                     <span className="jz-arrival-detail">
-                                        Ortalama yetişkin yürüyüşü, eğime göre; mola hariç.
+                                        Average adult walking pace, adjusted for slope; breaks not included.
                                     </span>
                                 </div>
                             )}
@@ -973,15 +988,15 @@ export default function App() {
                             )}
                             {exampleStatus && <p className="jz-note" role="alert">{exampleStatus}</p>}
                             {example && !verified && (
-                                <p className="jz-note" role="status">Hesaplanan rota doğrulama kaydıyla eşleşmedi.</p>
+                                <p className="jz-note" role="status">The calculated route did not match the verification record.</p>
                             )}
                             <p className="jz-note mission-status" role="status">
-                                {terrainError ?? (terrain ? status : 'Jezero arazisi yükleniyor…')}
+                                {terrainError ?? (terrain ? status : 'Loading Jezero terrain…')}
                             </p>
 
                             {route && terrain && (
                                 <details className="jz-profile">
-                                    <summary className="jz-label">Eğim profili</summary>
+                                    <summary className="jz-label">Slope profile</summary>
                                     <RouteProfile
                                         key={routeVersion}
                                         grid={grid}
@@ -997,20 +1012,20 @@ export default function App() {
                             )}
 
                             {route && compare && (
-                                <section className="route-comparison" aria-label="Rota karşılaştırması">
+                                <section className="route-comparison" aria-label="Route comparison">
                                     {!grid && (
-                                        <p role="status">{gridError ? 'Eğim verisi okunamadı.' : 'Eğim verisi yükleniyor…'}</p>
+                                        <p role="status">{gridError ? 'Could not read the slope data.' : 'Loading slope data…'}</p>
                                     )}
-                                    {grid && !alternative && <p role="status">Alternatif rota oluşturulamadı.</p>}
+                                    {grid && !alternative && <p role="status">Could not create an alternative route.</p>}
                                     {alternative && (
                                         <>
                                             <table>
-                                                <thead><tr><th scope="col">Rota</th><th scope="col">Yatay mesafe</th><th scope="col">Maks. eğim</th></tr></thead>
+                                                <thead><tr><th scope="col">Route</th><th scope="col">Horizontal distance</th><th scope="col">Max. slope</th></tr></thead>
                                                 <tbody>
-                                                <tr><th scope="row"><i className="route-swatch route-swatch-weighted" />Eğim ağırlıklı</th>
+                                                <tr><th scope="row"><i className="route-swatch route-swatch-weighted" />Slope-weighted</th>
                                                     <td>{distanceFormat.format(route.distanceMeters)} m</td>
                                                     <td>{slopeFormat.format(route.maxSlope)}°</td></tr>
-                                                <tr><th scope="row"><i className="route-swatch route-swatch-short" />Mesafe odaklı</th>
+                                                <tr><th scope="row"><i className="route-swatch route-swatch-short" />Distance-focused</th>
                                                     <td>{distanceFormat.format(alternative.distanceMeters)} m</td>
                                                     <td>{slopeFormat.format(alternative.maxSlope)}°</td></tr>
                                                 </tbody>
@@ -1036,12 +1051,12 @@ export default function App() {
                                 (panoramaError ? (
                                     <p className="jz-note" role="alert">{panoramaError}</p>
                                 ) : (
-                                    <p className="jz-note">360° pinler yaklaşık çekim konumlarını gösterir.</p>
+                                    <p className="jz-note">360° pins show approximate capture locations.</p>
                                 ))}
 
                             <div className="jz-actions">
                                 <button type="button" className="jz-primary" disabled={!terrain} onClick={toggleRover}>
-                                    <span>▶ Yürüyüşü başlat</span>
+                                    <span>▶ Start walk</span>
                                     <span className="jz-eta">{route ? formatEta(route.distanceMeters / roverSpeed) : 'T+--:--'}</span>
                                 </button>
                                 <div className="jz-secondary">
@@ -1051,7 +1066,7 @@ export default function App() {
                                         onClick={() => void openExample()}
                                         disabled={!terrain || loadingExample}
                                     >
-                                        {loadingExample ? 'Yükleniyor…' : 'Örnek rotayı aç'}
+                                        {loadingExample ? 'Loading…' : 'Open example route'}
                                     </button>
                                     {route && (
                                         <button
@@ -1060,7 +1075,7 @@ export default function App() {
                                             aria-expanded={compare}
                                             onClick={() => setCompare((visible) => !visible)}
                                         >
-                                            {compare ? 'Karşılaştırmayı kapat' : 'Karşılaştır'}
+                                            {compare ? 'Close comparison' : 'Compare'}
                                         </button>
                                     )}
                                     <button
@@ -1069,7 +1084,7 @@ export default function App() {
                                         onClick={resetPoints}
                                         disabled={loadingExample || (!start && !end && selecting === null)}
                                     >
-                                        ↶ Sıfırla
+                                        ↶ Reset
                                     </button>
                                 </div>
                             </div>
@@ -1089,13 +1104,13 @@ export default function App() {
                             <span className="walk-wordmark">ORUN SYSTEMS</span>
                             <div className="walk-heading">
                                 <h1>Jezero</h1>
-                                <p>Yürüyüş simülasyonu</p>
+                                <p>Walk simulation</p>
                             </div>
                             <button type="button" className="walk-exit" onClick={closeRover}>
-                                Çıkış <span aria-hidden="true">↗</span>
+                                Exit <span aria-hidden="true">↗</span>
                             </button>
                         </header>
-                        <section className="walk-dock" aria-label="Yürüyüş kontrolleri">
+                        <section className="walk-dock" aria-label="Walk controls">
                             {activeRoverData ? (
                                 <JezeroWalkControls
                                     frames={activeRoverData.frames}
@@ -1111,7 +1126,7 @@ export default function App() {
                                     telemetry={roverTelemetry}
                                 />
                             ) : (
-                                <p role="status">{roverError || 'Simülasyon rotası yükleniyor…'}</p>
+                                <p role="status">{roverError || 'Loading simulation route…'}</p>
                             )}
                         </section>
                     </>
