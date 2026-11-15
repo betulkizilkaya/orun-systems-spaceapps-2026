@@ -12,6 +12,7 @@ import './features/mission/RouteComparison.css'
 import './features/mission/JezeroOpening.css'
 import './features/mission/JezeroConsole.css'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMissionAudio } from './useMissionAudio'
 import {TerrainInspectionPanel, type TerrainInspection,} from './features/mission/TerrainInspectionPanel'
 import {
     TerrainFraming,
@@ -74,7 +75,7 @@ function overlayPosition([x, y, z]: MapPoint): MapPoint {
 function TerrainMaterial() {
     const texture = useLoader(
         TextureLoader,
-        `${import.meta.env.BASE_URL}mission/jezero-terrain-visualization.webp`
+        `${import.meta.env.BASE_URL}mission/jezero-terrain-tinted.webp`
     )
 
     texture.colorSpace = SRGBColorSpace
@@ -98,6 +99,15 @@ function PointMarker({ point, color }: { point: MapPoint; color: string }) {
 }
 
 export default function App() {
+   const {
+    soundEnabled,
+    toggleSound,
+    playUiClick,
+    playInitialization,
+    playCameraTransition,
+    playRouteCalculated,
+    playDestinationReached,
+} = useMissionAudio()
     const [exploring, setExploring] = useState(() => window.location.hash === '#harita')
 
     useEffect(() => {
@@ -179,6 +189,15 @@ async function switchMapView(next: MapView) {
 
         return terrain.getRoute(start, end)
     }, [terrain, start, end])
+
+    const lastAnnouncedRoute = useRef<typeof route>(null)
+
+    useEffect(() => {
+        if (!exploring || !route || lastAnnouncedRoute.current === route) return
+
+        lastAnnouncedRoute.current = route
+        playRouteCalculated()
+    }, [exploring, route, playRouteCalculated])
 
     const selectedRoverData = useMemo(() => {
         if (!route || !terrain) return null
@@ -305,6 +324,16 @@ async function switchMapView(next: MapView) {
     function updateRoverDistance(distance: number) {
         setRoverDistance(distance)
         if (distance >= roverTotal) setRoverPlaying(false)
+    }
+
+    function updatePlaybackDistance(distance: number) {
+        const reachedEnd =
+            roverPlaying && roverTotal > 0 &&
+            roverDistance < roverTotal && distance >= roverTotal
+
+        updateRoverDistance(distance)
+
+        if (reachedEnd) playDestinationReached()
     }
 
     function updateRoverPlaying(playing: boolean) {
@@ -460,6 +489,27 @@ async function switchMapView(next: MapView) {
 
     return (
         <>
+        <button
+    type="button"
+    aria-label="Görev sesleri"
+    aria-pressed={soundEnabled}
+    onClick={toggleSound}
+    style={{
+        position: 'fixed',
+        top: 16,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 201,
+        padding: '8px 14px',
+        border: '1px solid #ffffff40',
+        borderRadius: 999,
+        background: '#101112e6',
+        color: '#f5f1eb',
+        cursor: 'pointer',
+    }}
+>
+    {soundEnabled ? 'Ses açık' : 'Ses kapalı'}
+</button>
             <div
                 className={`horizon-page ${exploring ? 'is-exploring' : 'is-intro'}`}
                 style={{
@@ -545,6 +595,7 @@ async function switchMapView(next: MapView) {
 
                             <button type="button" className="opening-button" disabled={!terrain}
                                     onClick={() => {
+                                        playInitialization()
                                         enterMap()
                                         requestAnimationFrame(() => {
   document.getElementById('jezero-map')?.focus({ preventScroll: true })
@@ -719,7 +770,8 @@ onCreated={({ gl }) => gl.setClearAlpha(0)}
                                     speedMps={roverSpeed}
                                     distanceM={roverDistance}
                                     cameraMode={roverCamera}
-                                    onDistanceChange={updateRoverDistance}
+                                    onApproachStart={playCameraTransition}
+                                    onDistanceChange={updatePlaybackDistance}
                                     onTelemetry={setRoverTelemetry}
                                 />
                             )}
@@ -772,7 +824,10 @@ onCreated={({ gl }) => gl.setClearAlpha(0)}
                             <button
                                 type="button"
                                 aria-pressed={!isTopView}
-                                onClick={() => void switchMapView('3d')}
+                                onClick={() => {
+                                    if (view !== '3d') playUiClick()
+                                    void switchMapView('3d')
+                                }}
                             >
                                 3B · Arazi
                             </button>

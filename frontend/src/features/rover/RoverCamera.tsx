@@ -8,6 +8,13 @@ type Props = {
     position: Vector3
     direction: Vector3
     mode: RoverCameraMode
+    onApproachStart?: () => void
+}
+
+type CameraApproach = {
+    startTime: number
+    position: Vector3
+    rotation: Quaternion
 }
 
 const FOLLOW_DISTANCE = 3
@@ -15,8 +22,14 @@ const FOLLOW_HEIGHT = 1.65
 const POV_HEIGHT = 1.7
 const MOUSE_SENSITIVITY = 0.003
 const MAX_PITCH = Math.PI / 2 - 0.12
+const APPROACH_DURATION_SECONDS = 1.07
 
-export function RoverCamera({ position, direction, mode }: Props) {
+export function RoverCamera({
+    position,
+    direction,
+    mode,
+    onApproachStart,
+}: Props) {
     const { camera, gl } = useThree()
     const previousMode = useRef<RoverCameraMode>('orbit')
     const smoothDirection = useRef(new Vector3(0, 0, 1))
@@ -25,6 +38,8 @@ export function RoverCamera({ position, direction, mode }: Props) {
     const pitch = useRef(0)
     const dragging = useRef(false)
     const lastPointer = useRef({ x: 0, y: 0 })
+    const firstApproachStarted = useRef(false)
+    const approach = useRef<CameraApproach | null>(null)
 
     useEffect(() => {
         if (mode === 'orbit') return
@@ -50,7 +65,10 @@ export function RoverCamera({ position, direction, mode }: Props) {
             )
         }
 
-        const onPointerUp = () => { dragging.current = false }
+        const onPointerUp = () => {
+            dragging.current = false
+        }
+
         canvas.addEventListener('pointerdown', onPointerDown)
         canvas.addEventListener('pointermove', onPointerMove)
         canvas.addEventListener('pointerup', onPointerUp)
@@ -67,8 +85,9 @@ export function RoverCamera({ position, direction, mode }: Props) {
         }
     }, [gl, mode])
 
-    useFrame((_, delta) => {
+    useFrame(({ clock }, delta) => {
         if (mode === 'orbit') {
+            approach.current = null
             previousMode.current = 'orbit'
             return
         }
@@ -76,6 +95,7 @@ export function RoverCamera({ position, direction, mode }: Props) {
         const dt = Math.min(delta, 0.05)
         const desiredDirection = direction.clone()
         desiredDirection.y = 0
+
         if (desiredDirection.lengthSq() < 0.000001) {
             desiredDirection.copy(smoothDirection.current)
         } else {
@@ -83,11 +103,29 @@ export function RoverCamera({ position, direction, mode }: Props) {
         }
 
         if (previousMode.current !== mode) {
+            approach.current = null
             smoothDirection.current.copy(desiredDirection)
             yawOffset.current = 0
             pitch.current = 0
             smoothTarget.current.copy(position).add(new Vector3(0, POV_HEIGHT, 0))
             previousMode.current = mode
+
+            if (mode === 'follow' && !firstApproachStarted.current) {
+                firstApproachStarted.current = true
+
+                const reducedMotion = window.matchMedia(
+                    '(prefers-reduced-motion: reduce)',
+                ).matches
+
+                if (!reducedMotion) {
+                    approach.current = {
+                        startTime: clock.elapsedTime,
+                        position: camera.position.clone(),
+                        rotation: camera.quaternion.clone(),
+                    }
+                    onApproachStart?.()
+                }
+            }
         }
 
         smoothDirection.current.lerp(
@@ -115,17 +153,40 @@ export function RoverCamera({ position, direction, mode }: Props) {
             desiredTarget.copy(desiredPosition).addScaledVector(lookDirection, 20)
         }
 
-        const positionAlpha = 1 - Math.exp(-(mode === 'follow' ? 18 : 10) * dt)
-        const rotationAlpha = 1 - Math.exp(-(mode === 'follow' ? 12 : 8) * dt)
-
-        camera.position.lerp(desiredPosition, positionAlpha)
-        smoothTarget.current.lerp(desiredTarget, rotationAlpha)
-
         const tempCamera = camera.clone()
-        tempCamera.position.copy(camera.position)
-        tempCamera.lookAt(smoothTarget.current)
-        const targetQuaternion = new Quaternion().copy(tempCamera.quaternion)
-        camera.quaternion.slerp(targetQuaternion, rotationAlpha)
+        const activeApproach = approach.current
+
+        if (activeApproach) {
+            const progress = Math.min(
+                1,
+                (clock.elapsedTime - activeApproach.startTime) / APPROACH_DURATION_SECONDS,
+            )
+            const eased = progress * progress * (3 - 2 * progress)
+
+            tempCamera.position.copy(desiredPosition)
+            tempCamera.lookAt(desiredTarget)
+
+            camera.position.lerpVectors(activeApproach.position, desiredPosition, eased)
+            camera.quaternion.slerpQuaternions(
+                activeApproach.rotation,
+                tempCamera.quaternion,
+                eased,
+            )
+            smoothTarget.current.copy(desiredTarget)
+
+            if (progress >= 1) approach.current = null
+        } else {
+            const positionAlpha = 1 - Math.exp(-(mode === 'follow' ? 18 : 10) * dt)
+            const rotationAlpha = 1 - Math.exp(-(mode === 'follow' ? 12 : 8) * dt)
+
+            camera.position.lerp(desiredPosition, positionAlpha)
+            smoothTarget.current.lerp(desiredTarget, rotationAlpha)
+
+            tempCamera.position.copy(camera.position)
+            tempCamera.lookAt(smoothTarget.current)
+            camera.quaternion.slerp(tempCamera.quaternion, rotationAlpha)
+        }
+
         camera.updateMatrixWorld()
     })
 

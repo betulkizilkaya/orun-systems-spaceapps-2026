@@ -20,19 +20,20 @@ type Props = {
     cameraMode: RoverCameraMode
     onDistanceChange?: (distanceM: number) => void
     onTelemetry?: (telemetry: RoverTelemetry) => void
+    onApproachStart?: () => void
 }
 
-/** Astronaut playback on an existing R3F Canvas. */
 export function RoverPlayback({
-                                  data,
-                                  projectToSurface,
-                                  playing,
-                                  speedMps,
-                                  distanceM,
-                                  cameraMode,
-                                  onDistanceChange,
-                                  onTelemetry,
-                              }: Props) {
+    data,
+    projectToSurface,
+    playing,
+    speedMps,
+    distanceM,
+    cameraMode,
+    onDistanceChange,
+    onTelemetry,
+    onApproachStart,
+}: Props) {
     const frames = data.frames
     const distanceRef = useRef(distanceM)
     const [renderDistance, setRenderDistance] = useState(distanceM)
@@ -57,7 +58,8 @@ export function RoverPlayback({
 
         if (
             nextDistance !== lastReported.current &&
-            (Math.abs(nextDistance - lastReported.current) >= 0.2 || nextDistance === lastDistance)
+            (Math.abs(nextDistance - lastReported.current) >= 0.2 ||
+                nextDistance === lastDistance)
         ) {
             lastReported.current = nextDistance
             onDistanceChange?.(nextDistance)
@@ -88,6 +90,7 @@ export function RoverPlayback({
             0,
             aheadPosition[2] - behindPosition[2],
         )
+
         return vector.lengthSq() > 0.000001
             ? vector.normalize()
             : new Vector3(0, 0, 1)
@@ -103,10 +106,19 @@ export function RoverPlayback({
         <>
             {cameraMode !== 'pov' && (
                 <Suspense fallback={null}>
-                    <AstronautModel position={position} direction={direction} playing={playing} />
+                    <AstronautModel
+                        position={position}
+                        direction={direction}
+                        playing={playing}
+                    />
                 </Suspense>
             )}
-            <RoverCamera position={position} direction={direction} mode={cameraMode} />
+            <RoverCamera
+                position={position}
+                direction={direction}
+                mode={cameraMode}
+                onApproachStart={onApproachStart}
+            />
         </>
     )
 }
