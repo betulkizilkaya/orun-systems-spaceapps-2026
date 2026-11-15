@@ -169,6 +169,48 @@ orun-systems-spaceapps-2026/
 
 These references provide context for terrain mobility and exploration; they do **not** establish a universal 20° safety limit for Mars surface travel.
 
+## AI / Super Intelligence (SI) Usage Disclosure
+
+Orun Systems used AI-assisted tools during the development of Martian Map to support software development, visual asset creation, audio production, and technical documentation.
+
+### Code Development — ChatGPT / OpenAI
+
+ChatGPT, including its cloud-based coding capabilities, was used to assist with code generation, debugging, refactoring, and implementation.
+
+The team guided the development process, integrated the code, and reviewed the resulting functionality. AI assistance was used to accelerate development rather than replace human decision-making.
+
+### Visual Assets — ChatGPT / OpenAI
+
+ChatGPT's image generation capabilities were used to create selected Mars-themed illustrations and interface visuals.
+
+These AI-generated images are artistic representations and are not presented as authentic NASA imagery or scientific observations.
+
+### Audio Assets — SoundLab
+
+SoundLab was used to generate selected interface sound effects, transition sounds, and synthetic voice announcements.
+
+These audio assets were created for the application's interactive mission-control experience.
+
+### Scientific Data and Analysis
+
+The scientific foundation of the project is based on the referenced USGS and other scientific resources.
+
+Terrain elevation, slope, and geological datasets were processed and analyzed using QGIS and supporting computational tools.
+
+AI-assisted development tools supported the implementation of analysis and routing workflows, while the team remained responsible for dataset selection, processing decisions, testing, and interpretation.
+
+AI-generated imagery and audio were not used as scientific measurement data.
+
+### Documentation
+
+ChatGPT was used to assist with drafting, editing, and organizing technical documentation and presentation materials.
+
+### Human Oversight
+
+The Orun Systems team directed the project's concept, scientific methodology, data processing, software architecture, implementation, testing, and final design decisions.
+
+AI tools were used as supporting development resources. The team retained responsibility for the final project and its scientific claims.
+
 ## Team
 
 **Orun Systems**
