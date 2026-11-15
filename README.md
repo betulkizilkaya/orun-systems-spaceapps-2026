@@ -157,7 +157,6 @@ orun-systems-spaceapps-2026/
 
 **Mission imagery and third-party assets**
 
-- [NASA / JPL-Caltech: Mars 2020 raw images](https://mars.nasa.gov/mars2020/multimedia/raw-images/) — mission imagery and visual references.
 - [“Tripo Astronaut (animated)” by Jungle Jim, Sketchfab](https://sketchfab.com/3d-models/tripo-astronaut-animated-bf065335fc194bfeac12439b804f6135) — third-party astronaut model. **Verify and comply with the model's specific license and attribution requirements before redistribution.**
 - Some illustrative Mars visuals were AI-generated; these are **artistic representations**, not scientific observations.
 - Mission audio and other visual assets should be reviewed individually for their original licenses and attribution requirements.
@@ -185,6 +184,6 @@ Original source code developed by **Orun Systems** is released under the **MIT L
 
 **Copyright (c) 2026 Selin Kübra Şimşek and Betül Kızılkaya.**
 
-The MIT License applies to the team’s original source code only. It **does not automatically cover** third-party datasets, NASA/JPL-Caltech/USGS/FU Berlin imagery and other materials, the Sketchfab astronaut model, AI-generated visual assets, or audio. These remain subject to their respective owners’ licensing and attribution requirements.
+The MIT License applies to the team's original source code only. It does not automatically cover third-party datasets, USGS/FU Berlin imagery and other materials, the Sketchfab astronaut model, AI-generated visual assets, or audio. These remain subject to their respective owners' licensing and attribution requirements.
 
 **Disclaimer:** Martian Map is a prototype for exploration, education, and research communication. Route warnings and scientific waypoints are illustrative and must not be used for real mission safety decisions.
