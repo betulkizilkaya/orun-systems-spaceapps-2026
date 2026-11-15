@@ -1,0 +1,27 @@
+/* Tahmini varış süresi kartı */
+.jz-panel .jz-arrival {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 18px 0 0;   /* ← 4px idi, 18px yaptık */
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 178, 91, .28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .03);
+}
+
+.jz-panel .jz-arrival-time {
+  display: block;
+  color: var(--ink, #f5f1eb);
+  font: 300 clamp(26px, 4.2vh, 36px)/1.1 'IBM Plex Mono', monospace;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.jz-panel .jz-arrival-detail {
+  display: block;
+  color: var(--mute, #9a948b);
+  font-size: 12px;
+  line-height: 1.5;
+}

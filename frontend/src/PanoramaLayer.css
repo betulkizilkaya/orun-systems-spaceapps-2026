@@ -1,0 +1,99 @@
+/* Panorama pinleri: küçük cam chip + ince direk + yer noktası */
+.pano-pin {
+  --cream: #f3ece4;
+  --amber: #ffb25b;
+
+  /* Alt-orta nokta (yer noktası) tam konumda dursun */
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.pano-chip {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1.5px solid rgba(243, 236, 228, .8);
+  border-radius: 50%;
+  background: rgba(8, 9, 12, .82);
+  color: var(--cream);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .45);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+
+.pano-chip:hover,
+.pano-chip:focus-visible {
+  transform: scale(1.12);
+  border-color: #fff;
+  box-shadow: 0 0 0 4px rgba(243, 236, 228, .16), 0 2px 12px rgba(0, 0, 0, .5);
+  outline: none;
+}
+
+.pano-chip:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+.pano-stem {
+  width: 1px;
+  height: 14px;
+  background: linear-gradient(rgba(243, 236, 228, .8), rgba(243, 236, 228, .25));
+}
+
+.pano-ground {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cream);
+  box-shadow: 0 0 0 2px rgba(8, 9, 12, .7);
+}
+
+/* Etiket: sadece üstüne gelince / odaklanınca */
+.pano-tip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 12px 8px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 12px;
+  background: rgba(8, 9, 12, .9);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--cream);
+  text-align: left;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-4px, -50%);
+  pointer-events: none;
+  transition: opacity .15s, transform .15s;
+}
+
+.pano-tip strong {
+  font: 500 12px/1.2 'Instrument Sans', 'Segoe UI', sans-serif;
+}
+
+.pano-tip small {
+  color: var(--amber);
+  font: 400 9px/1.3 'IBM Plex Mono', monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.pano-chip:hover .pano-tip,
+.pano-chip:focus-visible .pano-tip {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pano-chip,
+  .pano-tip { transition: none; }
+}

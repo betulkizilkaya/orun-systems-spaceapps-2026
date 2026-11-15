@@ -1,6 +1,7 @@
 import { fromArrayBuffer } from 'geotiff'
 import { PlaneGeometry } from 'three'
 import { findRoute } from './routePlanner'
+import { estimateWalkingTime, type WalkingEstimate } from './walkingTime'
 import { findUnsafeRouteSegments } from './routeSegmentValidation'
 import {
     RECOMMENDED_MAX_DEG,
@@ -15,6 +16,8 @@ type JezeroRoute = {
     maxSlope: number
     distanceMeters: number
     assessment: RouteAssessment
+    /** Ortalama bir insanın tahmini yürüyüş süresi (eğime göre, Tobler modeli). */
+    walking: WalkingEstimate | null
     /** points dizisinde 20°'yi aşan segmentlerin indeksleri (segment i = points[i] → points[i+1]). */
     steepSegments: number[]
     /** 30°'yi aşan segmentler. */
@@ -173,6 +176,8 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
             maxSlope,
             distanceMeters: horizontalSceneDistance / scale,
             assessment: assessRoute(maxSlope, segmentMeters(steepSegments), segmentMeters(dangerousSegments)),
+            // Sahne x/y/z aynı `scale` ile ölçeklendiği için 1/scale = metre/birim.
+            walking: estimateWalkingTime(points, 1 / scale),
             steepSegments,
             dangerousSegments,
         }

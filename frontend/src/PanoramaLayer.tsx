@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Html } from '@react-three/drei'
 import type { loadJezeroTerrain } from './jezeroTerrain'
 import type { Panorama } from './PanoramaDialog'
+import './PanoramaLayer.css'
 
 type Terrain = Awaited<ReturnType<typeof loadJezeroTerrain>>
 
@@ -90,7 +91,7 @@ export function PanoramaLayer({
     return () => controller.abort()
   }, [terrain, onError])
 
-    return (
+  return (
     <>
       {points.map(({ id, projectedX, projectedY }) => {
         const panorama = PANORAMAS[id]
@@ -98,35 +99,33 @@ export function PanoramaLayer({
         const label = `${panorama.name} · Yaklaşık çekim konumu`
 
         return (
-          <Html key={id} position={[x, y + 0.8, z]} center>
-            <button
-              type="button"
-              title={label}
-              aria-label={`${label} · Panoramayı görüntüle`}
-              aria-haspopup="dialog"
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={(event) => {
-                event.stopPropagation()
-                onSelect(panorama)
-              }}
-              style={{
-                display: 'grid',
-                placeItems: 'center',
-                width: 36,
-                height: 36,
-                padding: 0,
-                border: '2px solid #79e2ff',
-                borderRadius: '50%',
-                background: '#101318',
-                color: '#eaf9ff',
-                fontSize: 11,
-                fontWeight: 700,
-                cursor: 'pointer',
-                touchAction: 'manipulation',
-              }}
-            >
-              360°
-            </button>
+          // Pin, yer noktasına oturur: alt-orta nokta araziye değer, chip direğin ucunda durur.
+          <Html key={id} position={[x, y + 0.4, z]} zIndexRange={[10, 0]}>
+            <div className="pano-pin">
+              <button
+                type="button"
+                className="pano-chip"
+                aria-label={`${label} · Panoramayı görüntüle`}
+                aria-haspopup="dialog"
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onSelect(panorama)
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                  <ellipse cx="12" cy="12" rx="10" ry="4.5" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span className="pano-tip" role="tooltip">
+                  <strong>{panorama.name}</strong>
+                  <small>360° · Sol {panorama.sol}</small>
+                </span>
+              </button>
+              <i className="pano-stem" aria-hidden="true" />
+              <i className="pano-ground" aria-hidden="true" />
+            </div>
           </Html>
         )
       })}

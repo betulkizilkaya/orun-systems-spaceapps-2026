@@ -12,6 +12,7 @@ import './features/mission/RouteComparison.css'
 import './features/mission/JezeroOpening.css'
 import './features/mission/JezeroConsole.css'
 import './features/mission/JezeroLayoutFix.css'
+import './features/mission/JezeroArrival.css'   // YENİ
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMissionAudio } from './useMissionAudio'
 import { TerrainInspectionPanel, type TerrainInspection } from './features/mission/TerrainInspectionPanel'
@@ -30,6 +31,7 @@ import { JezeroWalkControls } from './features/rover/JezeroWalkControls'
 import type { RoverCameraMode } from './features/rover/RoverCamera'
 import { loadRoverPlayback, type RoverPlaybackData } from './features/rover/roverPlaybackData'
 import { createRoutePlayback } from './features/rover/createRoutePlayback'
+import { formatDuration } from './walkingTime' // YENİ
 
 type MapPoint = [x: number, y: number, z: number]
 type ExampleRoute = {
@@ -940,6 +942,24 @@ export default function App() {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* YENİ: Tahmini varış süresi kartı */}
+                            {route?.walking && (
+                                <div className="jz-arrival" role="status">
+                                    <span className="jz-label">Tahmini varış süresi</span>
+                                    <strong className="jz-arrival-time">
+                                        {formatDuration(route.walking.seconds)}
+                                    </strong>
+                                    <span className="jz-arrival-detail">
+                                        Ort. {slopeFormat.format(route.walking.averageSpeedKmh)} km/sa
+                                        {' · '}↑ {distanceFormat.format(route.walking.ascentMeters)} m
+                                        {' · '}↓ {distanceFormat.format(route.walking.descentMeters)} m
+                                    </span>
+                                    <span className="jz-arrival-detail">
+                                        Ortalama yetişkin yürüyüşü, eğime göre; mola hariç.
+                                    </span>
+                                </div>
+                            )}
 
                             {route && (route.assessment.discouraged || route.assessment.level === 'hard') && (
                                 <div
