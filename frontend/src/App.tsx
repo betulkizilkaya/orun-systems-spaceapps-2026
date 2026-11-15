@@ -341,10 +341,21 @@ export default function App() {
             if (!terrain.bounds.every((value, i) => value === [west, south, east, north][i])) {
                 throw new Error('Unexpected terrain bounds')
             }
+
+
             const first = data.points[0]
             const last = data.points[data.points.length - 1]
-            const origin = terrain.projectToSurface(first.projectedX, first.projectedY)
-            const destination = terrain.projectToSurface(last.projectedX, last.projectedY)
+
+            const origin = terrain.projectToSurface(
+                first.projectedX,
+                first.projectedY
+            )
+
+            const destination = terrain.projectToSurface(
+                last.projectedX,
+                last.projectedY
+            )
+
             if (!origin || !destination) throw new Error('Example outside terrain')
             setStart(origin)
             setEnd(destination)
@@ -496,14 +507,16 @@ export default function App() {
                             <circle className="opening-beacon" cx="584" cy="510" r="2" />
                         </svg>
                         <div className="opening-copy">
+
                             <h1 className="opening-heading">
                                 <img
                                     src={`${import.meta.env.BASE_URL}mission/jezero-heading.png`}
                                     alt="Jezero. Arazinin eğimini incele, yürüyüş rotanı çiz."
-                                    width={373}
-                                    height={142}
+                                    width={466}
+                                    height={178}
                                 />
                             </h1>
+
                             <button type="button" className="opening-button" disabled={!terrain}
                                     onClick={() => {
                                         enterMap()

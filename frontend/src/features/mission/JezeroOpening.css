@@ -42,11 +42,37 @@
   animation: jezero-route-light 610ms ease-in-out both;
 }
 
-@keyframes jezero-route-light {
-  0% { stroke-dashoffset: 6; opacity: 0; }
-  13%, 76% { opacity: .85; }
-  100% { stroke-dashoffset: -100; opacity: 0; }
+/* Açılış ekranında sürekli hareket eden rota ışığı */
+.opening-route path {
+    animation: jezero-route-light 7s linear infinite;
 }
+
+/* Sayfa geçişinde mevcut hızlı animasyonu koru */
+.is-exploring .opening-route path {
+    animation: jezero-route-light 610ms ease-in-out both;
+}
+
+
+@keyframes jezero-route-light {
+    0% {
+        stroke-dashoffset: 6;
+        opacity: 0;
+    }
+
+    8% {
+        opacity: 0.95;
+    }
+
+    85% {
+        opacity: 0.95;
+    }
+
+    100% {
+        stroke-dashoffset: -200;
+        opacity: 0;
+    }
+}
+
 
 .opening-frame {
   container-type: inline-size;
@@ -298,9 +324,9 @@
 }
 
 .opening-copy h1.opening-heading {
-  width: clamp(220px, 31cqw, 470px);
-  max-width: 100%;
-  transform: none;
+    width: clamp(315px, 45cqw, 675px);
+    max-width: 100%;
+    transform: none;
 }
 
 .opening-heading img {
@@ -312,3 +338,11 @@
 .opening-instrument .opening-arc {
   display: none;
 }
+
+
+@media (prefers-reduced-motion: reduce) {
+    .opening-route path {
+        animation: none;
+    }
+}
+

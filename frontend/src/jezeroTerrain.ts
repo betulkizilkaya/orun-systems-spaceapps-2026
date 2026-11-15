@@ -1,6 +1,7 @@
 import { fromArrayBuffer } from 'geotiff'
 import { PlaneGeometry } from 'three'
 import { findRoute } from './routePlanner'
+import { findUnsafeRouteSegments } from './routeSegmentValidation'
 
 type Point = [x: number, y: number, z: number]
 type JezeroRoute = { points: Point[]; maxSlope: number; distanceMeters: number }
@@ -109,7 +110,20 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
     }
     function getRoute(start: Point, end: Point): JezeroRoute | null {
         const cells = findRoute(grid, sceneToCell(start), sceneToCell(end))
-        if (!cells) return null
+        if (!cells) {
+            const [startRow, startCol] = sceneToCell(start)
+            const [endRow, endCol] = sceneToCell(end)
+
+            console.warn('[Jezero A*]', {
+                startCell: [startRow, startCol],
+                startSlope: grid[startRow][startCol],
+                endCell: [endRow, endCol],
+                endSlope: grid[endRow][endCol],
+                slopeLimit: 20,
+            })
+
+            return null
+        }
         let maxSlope = 0
         const points: Point[] = [start]
         for (const [row, col] of cells) {
@@ -122,6 +136,26 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
             }
         }
         points.push(end)
+
+        const unsafeSegments = findUnsafeRouteSegments(
+            points,
+            grid,
+            SCENE_WIDTH,
+            sceneDepth,
+        )
+
+        if (unsafeSegments.length > 0) {
+            console.warn('[Jezero Route Validation]', {
+                reason: 'Route rejected by segment validation',
+                unsafeSegments,
+                totalSegments: points.length - 1,
+                startCell: sceneToCell(start),
+                endCell: sceneToCell(end),
+            })
+
+            return null
+        }
+
         let horizontalSceneDistance = 0
         for (let i = 1; i < points.length; i++) {
             horizontalSceneDistance += Math.hypot(points[i][0] - points[i - 1][0], points[i][2] - points[i - 1][2])
