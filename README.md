@@ -27,8 +27,9 @@ The project was developed by **Orun Systems** for the **NASA Space Apps Challeng
 - **Interactive terrain inspection:** Inspect local elevation, slope, and projected coordinates by pointing at the surface.
 - **Slope statistics:** Explore mean, median, 95th-percentile, and maximum slope, plus the distribution of slope values across the study area.
 - **Geological and panorama overlays:** Explore mapped geology and contextual Jezero imagery.
-- **Scientific waypoints:** Display three proposed observation stops with modeled terrain and geological context.
-- **Astronaut simulation:** Animate an astronaut along a **currently planned route** when one is selected. A prerecorded route is also available as fallback demonstration data. Playback includes Orbit, Follow, and POV camera modes and interactive controls.
+- **Scientific mission planning:** Plan a sequential, multi-segment A* route through three proposed scientific observation waypoints, with terrain-aware constraints and mission-level metrics.
+- **3D scientific waypoint visualization:** Display numbered observation markers on the terrain, along with pending/reached status and progress indicators.
+- **Astronaut simulation:** Animate an astronaut along a **currently planned route**, including multi-waypoint science missions. A prerecorded route is also available as fallback demonstration data. Playback includes Orbit, Follow, and POV camera modes, mission progress tracking, and speed controls from 0.2× to 20×.
 - **Mission interface and audio:** Use a cinematic mission console with optional interface, transition, and voice cues.
 
 ## Technical approach
@@ -67,6 +68,48 @@ Three **illustrative, simulated** scientific observation stops are defined in `f
 
 These are **proposed mission observations**, not sites sampled by an actual mission or certified safe destinations. The waypoint dataset is associated with the prerecorded demonstration route; do not assume its coordinates coincide with every newly generated interactive route.
 
+### Scientific mission planning and 3D waypoint visualization
+
+The scientific mission workflow extends the existing A* route planner to connect **three project-defined observation objectives in sequence**. These are simulated scientific destinations, not official NASA astronaut sampling sites.
+
+| Waypoint | Proposed scientific objective |
+|---|---|
+| WP-01: Surface Reconnaissance | Document visible surface textures and identify possible rock features for closer inspection. |
+| WP-02: Terrain Gradient Survey | Examine terrain gradients using DEM-derived elevation and slope information. |
+| WP-03: Geomorphology Observation | Compare visible landforms with modeled topographic characteristics. |
+
+Each waypoint record includes Mars Equirectangular (EQC) projected coordinates, local terrain coordinates, modeled elevation and slope, geological unit information, and an observation task.
+
+The mission planner converts waypoint coordinates into the terrain grid, calculates traversable A* segments between successive destinations, and joins the segments into a continuous exploration route. It applies **configurable slope constraints** during planning; these must not be confused with the separate 20° hard-constrained 830 m reference example.
+
+The current scientific mission demonstration reports **approximately 1,360 m across three mission segments**, with a **maximum modeled slope of 21.6°**. These are route-model outputs, not verified astronaut safety limits.
+
+The Three.js view renders the combined route on the modeled surface and shows three numbered waypoint markers (`01`, `02`, `03`). Marker placement follows the terrain projection so locations remain aligned as the camera rotates, zooms, or changes perspective. Marker styling can distinguish pending and reached destinations.
+
+For playback, route geometry is converted into frames with cumulative traveled-distance values. The astronaut's simulated distance is compared with each waypoint's cumulative route distance:
+
+- Waypoints start with `PENDING` status.
+- A waypoint becomes `REACHED` when simulated travel reaches its associated route distance.
+- Progress indicators and waypoint marker states reflect completed destinations.
+- Resetting the mission clears progress.
+
+**`REACHED` means simulated arrival only**, not that a scientific observation or sample collection was actually completed.
+
+The playback speed menu supports **0.2×, 0.5×, 1×, 2×, 5×, 10×, and 20×**. It opens upward to keep all options visible near the bottom of the viewport; this is a UI adjustment and does not change routing calculations.
+
+**Implementation modules:**
+
+| Module | Responsibility |
+|---|---|
+| `frontend/src/features/mission/scienceMissionPlanner.ts` | Sequential scientific waypoint route planning and segment generation |
+| `frontend/public/data/jezero-science-waypoints.json` | Scientific waypoint objectives and metadata |
+| `frontend/src/App.tsx` | Mission state, route and marker rendering, playback integration |
+| `frontend/src/features/rover/createRoutePlayback.ts` | Distance-based route-to-playback conversion |
+| `frontend/src/features/rover/JezeroWalkControls.tsx` | Playback controls and speed menu |
+| `frontend/src/features/rover/JezeroWalk.css` | Playback control styling |
+
+This remains a **terrain-based planning prototype**. It does not comprehensively model regolith mechanics, radiation, spacesuit mobility constraints, or dynamic hazards; generated routes and observation stops are not operationally certified for human spaceflight.
+
 ## Validation and results
 
 The project includes analytical artifacts, reference route data, and automated unit tests. The following results describe **specific documented checks**, not a blanket certification of the entire application:
@@ -76,6 +119,7 @@ The project includes analytical artifacts, reference route data, and automated u
 | DEM source comparison | **25 / 25** sampled points matched | Sample-based fidelity check, not an exhaustive pixel comparison |
 | Slope raster reproducibility | **1,000,000 / 1,000,000** valid pixels matched | Recomputed using the same GDAL Horn method; confirms numerical reproducibility, not physical ground truth |
 | Hard-constrained A* example | **830 m** route; **19.24°** maximum encountered route-cell slope | Saved reference example with a 20° maximum-cell-slope setting; not a universal interactive-route result |
+| Multi-waypoint science mission demonstration | **~1,360 m**, **3 segments**, **21.6°** reported maximum modeled slope | Separate sequential waypoint route; not comparable to the 830 m reference route or a safety certification |
 | Route planner tests | Test cases for path selection, steep-cell penalties, optional hard constraints, invalid cells, and four-neighbor connectivity | Source-level tests; execute locally to confirm current pass status |
 
 The saved 830 m example is available in `frontend/public/data/jezero-test-rotasi.json`. Earlier exploratory experiments use **different endpoints, parameters, or route definitions**, so their route lengths must not be presented as direct before/after comparisons.
@@ -135,7 +179,7 @@ orun-systems-spaceapps-2026/
 │   │   ├── mission/                 # Mission interface visuals
 │   │   └── models/                  # Astronaut 3D model
 │   ├── src/
-│   │   ├── features/mission/        # Route/grid and mission interface components
+│   │   ├── features/mission/        # Route/grid, science mission planner, progress UI
 │   │   ├── features/rover/          # Astronaut playback and cameras
 │   │   ├── App.tsx                  # Integrated mission application
 │   │   ├── jezeroTerrain.ts         # Terrain loading and route integration
