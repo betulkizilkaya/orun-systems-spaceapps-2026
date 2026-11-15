@@ -1,4 +1,3 @@
-
 import { RECOMMENDED_MAX_DEG, DANGEROUS_MIN_DEG } from './routeDifficulty'
 
 type Cell = readonly [row: number, col: number]
@@ -82,7 +81,7 @@ export function findRoute(
         !Number.isFinite(slopePenalty) ||
         slopePenalty < 0
     ) {
-        throw new Error('Geçersiz rota planlama parametreleri.')
+        throw new Error('Invalid route planning parameters.')
     }
 
     const key = ([row, col]: Cell) => `${row},${col}`

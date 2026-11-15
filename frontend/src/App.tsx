@@ -25,6 +25,10 @@ import {
 } from './features/mission/MissionScene'
 import './features/mission/TerrainInspectionPanel.css'
 import { loadRouteGrid, shortestRoute } from './features/mission/routeGrid'
+import {
+  createScienceMissionRoute,
+  type ScienceMissionRoute,
+} from './features/mission/scienceMissionPlanner'
 import { SlopeAnalysisPanel } from './SlopeAnalysisPanel'
 import { RoverPlayback, type RoverTelemetry } from './features/rover/RoverPlayback'
 import { JezeroWalkControls } from './features/rover/JezeroWalkControls'
@@ -174,6 +178,18 @@ export default function App() {
     const [routeVersion, setRouteVersion] = useState(0)
 
     const [grid, setGrid] = useState<number[][] | null>(null)
+
+const [scienceMission, setScienceMission] =
+    useState<ScienceMissionRoute | null>(null)
+
+const [reachedScienceWaypoints, setReachedScienceWaypoints] =
+    useState<string[]>([])
+
+const [scienceMissionLoading, setScienceMissionLoading] = useState(false)
+
+const [scienceMissionError, setScienceMissionError] =
+    useState<string | null>(null)
+
     const [gridError, setGridError] = useState(false)
     const [compare, setCompare] = useState(false)
 
@@ -220,6 +236,39 @@ export default function App() {
         )
 
     }, [route, terrain])
+
+
+const scienceRoverData = useMemo(() => {
+    if (!scienceMission || !terrain) return null
+
+    const [west, south, east, north] = terrain.bounds
+    const sceneWidth = terrain.geometry.parameters.width
+    const sceneDepth = terrain.geometry.parameters.height
+
+    const points = scienceMission.projectedPoints.flatMap(
+        ({ projectedX, projectedY }) => {
+            const point = terrain.projectToSurface(
+                projectedX,
+                projectedY,
+            )
+
+            return point ? [point] : []
+        },
+    )
+
+    if (points.length !== scienceMission.projectedPoints.length) {
+        return null
+    }
+
+    return createRoutePlayback(
+        points,
+        [west, south, east, north],
+        sceneWidth,
+        sceneDepth,
+        terrain.sampleTerrain,
+    )
+}, [scienceMission, terrain])
+
 
     useEffect(() => {
         if (!roverVisible || roverData || selectedRoverData) return
@@ -294,9 +343,77 @@ export default function App() {
         setRoverPlaying(false)
         setRoverDistance(0)
         setRoverTelemetry(null)
-    }, [selectedRoverData])
+    }, [selectedRoverData, scienceRoverData])
 
-    const activeRoverData = selectedRoverData ?? roverData
+   const activeRoverData =
+    scienceRoverData ?? selectedRoverData ?? roverData
+
+   
+
+    const scienceWaypointPositions = useMemo(() => {
+    if (!scienceMission || !terrain) return []
+
+    return scienceMission.segments.flatMap(segment => {
+        const cellIndex =
+            scienceMission.waypointCellIndices[segment.to]
+
+        const target =
+            scienceMission.projectedPoints[cellIndex]
+
+        if (!target) return []
+
+        const point = terrain.projectToSurface(
+            target.projectedX,
+            target.projectedY,
+        )
+
+        if (!point) return []
+
+        return [{
+            id: segment.to,
+            position: point,
+        }]
+    })
+}, [scienceMission, terrain])
+
+const scienceWaypointDistances = useMemo(() => {
+    if (!scienceMission || !scienceRoverData) return []
+
+    const frames = scienceRoverData.frames
+
+    return scienceMission.segments.map(segment => {
+        const cellIndex =
+            scienceMission.waypointCellIndices[segment.to]
+
+        const target =
+            scienceMission.projectedPoints[cellIndex]
+
+        if (!target) {
+            throw new Error(
+                `Missing route position for ${segment.to}`,
+            )
+        }
+
+        const frame = frames.find(frame =>
+            Math.hypot(
+                frame.projectedX - target.projectedX,
+                frame.projectedY - target.projectedY,
+            ) < 0.01
+        )
+
+        if (!frame) {
+            throw new Error(
+                `Missing playback frame for ${segment.to}`,
+            )
+        }
+
+        return {
+            id: segment.to,
+            distanceM: frame.distanceM,
+        }
+    })
+}, [scienceMission, scienceRoverData])
+
 
     const roverOwnsCamera =
         roverVisible &&
@@ -323,10 +440,32 @@ export default function App() {
         )
     }, [terrain, activeRoverData])
 
-    function updateRoverDistance(distance: number) {
-        setRoverDistance(distance)
-        if (distance >= roverTotal) setRoverPlaying(false)
+    
+function updateRoverDistance(distance: number) {
+    setRoverDistance(distance)
+
+    if (distance >= roverTotal) {
+        setRoverPlaying(false)
     }
+
+    if (scienceMission && scienceRoverData) {
+        const reached = scienceWaypointDistances
+            .filter(waypoint => distance >= waypoint.distanceM)
+            .map(waypoint => waypoint.id)
+
+        setReachedScienceWaypoints(previous => {
+            if (
+                previous.length === reached.length &&
+                previous.every((id, index) => id === reached[index])
+            ) {
+                return previous
+            }
+
+            return reached
+        })
+    }
+}
+
 
     function updatePlaybackDistance(distance: number) {
         const reachedEnd =
@@ -384,6 +523,66 @@ export default function App() {
                 Math.abs(north - (z / height + 0.5) * (north - south) - example.points[i].projectedY) < 0.001
         }),
     )
+
+async function calculateScienceMission() {
+    if (!terrain || scienceMissionLoading) return
+
+    setScienceMissionLoading(true)
+    setScienceMissionError(null)
+    setScienceMission(null)
+    setReachedScienceWaypoints([])
+    setRoverDistance(0)
+
+    const controller = new AbortController()
+
+    try {
+        const bounds = terrain.bounds
+        const width = terrain.geometry.parameters.width
+        const depth = terrain.geometry.parameters.height
+
+        const startPoint = start
+            ? {
+                projectedX:
+                    bounds[0] +
+                    (start[0] / width + 0.5) *
+                    (bounds[2] - bounds[0]),
+                projectedY:
+                    bounds[3] -
+                    (start[2] / depth + 0.5) *
+                    (bounds[3] - bounds[1]),
+            }
+            : {
+                projectedX: 4579305,
+                projectedY: 1094426,
+            }
+
+        const mission = await createScienceMissionRoute(
+            controller.signal,
+            startPoint,
+        )
+
+        setScienceMission(mission)
+
+        console.log('[SCIENCE MISSION]', {
+            distanceM: mission.distanceM,
+            maxSlopeDeg: mission.maxSlopeDeg,
+            segments: mission.segments.map(segment => ({
+                from: segment.from,
+                to: segment.to,
+                distanceM: segment.distanceM,
+                maxSlopeDeg: segment.maxSlopeDeg,
+            })),
+        })
+    } catch (error) {
+        setScienceMissionError(
+            error instanceof Error
+                ? error.message
+                : 'Science mission route calculation failed.',
+        )
+    } finally {
+        setScienceMissionLoading(false)
+    }
+}
 
     async function openExample() {
         if (!terrain) return
@@ -446,6 +645,9 @@ export default function App() {
 
     function resetPoints() {
         setExample(null)
+        setScienceMission(null)
+setScienceMissionError(null)
+setReachedScienceWaypoints([])
         setExampleStatus('')
         setHighlight(null)
         setStart(null)
@@ -748,6 +950,41 @@ export default function App() {
 
                             {start && <PointMarker point={start} color="#7fd8ff" label="A" />}
                             {end && <PointMarker point={end} color="#ffb25b" label="B" />}
+
+{scienceMission && terrain && !roverVisible && (
+    <Line
+        points={scienceMission.projectedPoints.flatMap(
+            ({ projectedX, projectedY }) => {
+                const point = terrain.projectToSurface(
+                    projectedX,
+                    projectedY
+                )
+
+                return point
+                    ? [overlayPosition(point)]
+                    : []
+            }
+        )}
+        color="#8deaff"
+        lineWidth={3}
+        transparent
+        opacity={0.9}
+        depthTest={false}
+        renderOrder={12}
+    />
+)}
+                            {scienceWaypointPositions.map(waypoint => (
+    <PointMarker
+        key={waypoint.id}
+        point={waypoint.position}
+        color={
+            reachedScienceWaypoints.includes(waypoint.id)
+                ? '#72e8b5'
+                : '#8deaff'
+        }
+        label={waypoint.id.replace('WP-', '')}
+    />
+))}
 
                             {alternativePositions && !roverVisible && (
                                 <Line points={alternativePositions} color="#ffc475" lineWidth={2}
@@ -1054,7 +1291,64 @@ export default function App() {
                                     <p className="jz-note">360° pins show approximate capture locations.</p>
                                 ))}
 
+                             
+{scienceMission && (
+    <section
+        className="jz-science-progress"
+        aria-label="Science mission progress"
+    >
+        <p className="jz-label">SCIENCE MISSION PROGRESS</p>
+
+        {scienceMission.segments.map(segment => {
+            const reached = reachedScienceWaypoints.includes(
+                segment.to,
+            )
+
+            return (
+                <div
+                    key={segment.to}
+                    className="jz-science-waypoint"
+                >
+                    <span>{segment.to}</span>
+
+                    <span>
+                        {reached ? '✓ REACHED' : '○ PENDING'}
+                    </span>
+                </div>
+            )
+        })}
+    </section>
+)}
+ 
                             <div className="jz-actions">
+
+<button
+    type="button"
+    className="jz-pill"
+    style={{ transform: 'translateY(-10px)' }}
+    disabled={!terrain || scienceMissionLoading}
+    onClick={() => void calculateScienceMission()}
+>
+    {scienceMissionLoading
+        ? 'Calculating mission…'
+        : 'Calculate science mission'}
+</button>
+
+{scienceMissionError && (
+    <p className="jz-note" role="alert">
+        {scienceMissionError}
+    </p>
+)}
+
+{scienceMission && (
+    <p className="jz-note" role="status">
+        Science mission ready ·{' '}
+        {Math.round(scienceMission.distanceM)} m ·{' '}
+        {scienceMission.maxSlopeDeg.toFixed(1)}° max slope ·{' '}
+        {scienceMission.segments.length} segments
+    </p>
+)}
+
                                 <button type="button" className="jz-primary" disabled={!terrain} onClick={toggleRover}>
                                     <span>▶ Start walk</span>
                                     <span className="jz-eta">{route ? formatEta(route.distanceMeters / roverSpeed) : 'T+--:--'}</span>
@@ -1082,7 +1376,12 @@ export default function App() {
                                         type="button"
                                         className="jz-pill"
                                         onClick={resetPoints}
-                                        disabled={loadingExample || (!start && !end && selecting === null)}
+                                        
+disabled={
+    loadingExample ||
+    (!start && !end && selecting === null && !scienceMission)
+}
+
                                     >
                                         ↶ Reset
                                     </button>

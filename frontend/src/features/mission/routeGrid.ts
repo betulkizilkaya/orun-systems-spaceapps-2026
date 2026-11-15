@@ -192,3 +192,4 @@ export function shortestRoute(
 
     return { points, distanceMeters, maxSlope }
 }
+

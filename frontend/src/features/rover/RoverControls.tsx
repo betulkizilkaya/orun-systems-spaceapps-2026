@@ -17,11 +17,11 @@ type Props = {
 
 const speeds = [2, 5, 10, 20, 50, 100, 200]
 const cameras: { mode: RoverCameraMode; label: string }[] = [
-  { mode: 'orbit', label: 'Serbest' },
-  { mode: 'follow', label: 'Takip' },
-  { mode: 'pov', label: 'Astronot POV' },
+  { mode: 'orbit', label: 'Free' },
+  { mode: 'follow', label: 'Follow' },
+  { mode: 'pov', label: 'Astronaut POV' },
 ]
-const format = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 })
+const format = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
 export function RoverControls({
   playing, setPlaying, distanceM, setDistanceM, totalDistanceM,
@@ -30,21 +30,21 @@ export function RoverControls({
   const progress = totalDistanceM > 0 ? distanceM / totalDistanceM * 100 : 0
 
   return (
-    <section className="rover-controls" aria-label="Astronot simülasyonu">
-      <h2>Astronot simülasyonu</h2>
-      <p>Haritadaki altın çizgi, simülasyonun kayıtlı Jezero rotasını gösterir.</p>
+    <section className="rover-controls" aria-label="Astronaut simulation">
+      <h2>Astronaut simulation</h2>
+      <p>The gold line on the map shows the simulation's recorded Jezero route.</p>
       <div className="rover-actions">
         <button type="button" onClick={() => setPlaying(!playing)}>
-          {playing ? 'Duraklat' : 'Başlat'}
+          {playing ? 'Pause' : 'Start'}
         </button>
         <button type="button" onClick={() => {
           setPlaying(false)
           setDistanceM(0)
         }}>
-          Sıfırla
+          Reset
         </button>
       </div>
-      <div className="rover-actions" role="group" aria-label="Kamera">
+      <div className="rover-actions" role="group" aria-label="Camera">
         {cameras.map(({ mode, label }) => (
           <button type="button" key={mode} aria-pressed={cameraMode === mode}
             onClick={() => setCameraMode(mode)}>
@@ -53,22 +53,22 @@ export function RoverControls({
         ))}
       </div>
       <label className="rover-progress">
-        <span>Rota ilerlemesi · %{format.format(progress)}</span>
+        <span>Route progress · {format.format(progress)}%</span>
         <input type="range" min={0} max={totalDistanceM} step="any" value={distanceM}
           onChange={(event) => setDistanceM(Number(event.target.value))} />
       </label>
       <label className="rover-speed">
-        <span>Oynatma hızı</span>
+        <span>Playback speed</span>
         <select value={speedMps} onChange={(event) => setSpeedMps(Number(event.target.value))}>
-          {speeds.map((speed) => <option key={speed} value={speed}>{speed} m/sn</option>)}
+          {speeds.map((speed) => <option key={speed} value={speed}>{speed} m/s</option>)}
         </select>
       </label>
       {telemetry && (
         <dl className="rover-telemetry">
-          <div><dt>Mesafe</dt><dd>{format.format(telemetry.distanceM)} m</dd></div>
-          <div><dt>Kot</dt><dd>{format.format(telemetry.elevationM)} m</dd></div>
-          <div><dt>Eğim</dt><dd>{format.format(telemetry.slopeDeg)}°</dd></div>
-          <div><dt>Yön</dt><dd>{format.format(telemetry.headingDeg)}°</dd></div>
+          <div><dt>Distance</dt><dd>{format.format(telemetry.distanceM)} m</dd></div>
+          <div><dt>Elevation</dt><dd>{format.format(telemetry.elevationM)} m</dd></div>
+          <div><dt>Slope</dt><dd>{format.format(telemetry.slopeDeg)}°</dd></div>
+          <div><dt>Heading</dt><dd>{format.format(telemetry.headingDeg)}°</dd></div>
         </dl>
       )}
     </section>

@@ -4,7 +4,7 @@ import './RouteProfile.css'
 type Point = [number, number, number]
 type Sample = { point: Point; distance: number; slope: number; row: number; col: number }
 
-const format = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 })
+const format = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 
 export function RouteProfile({
   points, width, depth, distanceMeters, verified, onHighlight, grid, gridError,
@@ -49,9 +49,9 @@ export function RouteProfile({
   }, [grid, points, width, depth, distanceMeters])
 
   if (gridError || samples?.some(({ slope }) => !Number.isFinite(slope))) {
-    return <p role="status">Rota eğim profili yüklenemedi.</p>
+    return <p role="status">Route slope profile could not be loaded.</p>
   }
-  if (!samples?.length) return <p role="status">Eğim profili yükleniyor…</p>
+  if (!samples?.length) return <p role="status">Loading slope profile…</p>
 
   const peak = samples.reduce((best, sample, i) =>
     sample.slope > samples[best].slope ? i : best, 0)
@@ -66,9 +66,9 @@ export function RouteProfile({
   }
 
   return (
-    <section aria-label="Rota eğim profili">
-      <h3>Rota eğim profili</h3>
-      {verified && <p className="route-verified">Dijkstra ile doğrulandı · {samples.length} hücre</p>}
+    <section aria-label="Route slope profile">
+      <h3>Route slope profile</h3>
+      {verified && <p className="route-verified">Verified with Dijkstra · {samples.length} cells</p>}
       <svg className="route-chart" viewBox="0 0 320 150" aria-hidden="true"
         onPointerMove={(event) => {
           const rect = event.currentTarget.getBoundingClientRect()
@@ -88,13 +88,13 @@ export function RouteProfile({
         <text x="300" y="145" textAnchor="end">{format.format(distanceMeters)} m</text>
       </svg>
       <label className="route-profile-slider">
-        Rota hücresi
+        Route cell
         <input type="range" min="0" max={samples.length - 1} value={selected ?? peak}
           disabled={samples.length === 1}
           onChange={(event) => activate(Number(event.target.value))} />
       </label>
-      <p>{format.format(current.distance)} m · {format.format(current.slope)}° hücre maksimumu</p>
-      <button type="button" onClick={() => activate(peak)}>En dik hücreyi göster</button>
+      <p>{format.format(current.distance)} m · {format.format(current.slope)}° cell maximum</p>
+      <button type="button" onClick={() => activate(peak)}>Show steepest cell</button>
     </section>
   )
 }

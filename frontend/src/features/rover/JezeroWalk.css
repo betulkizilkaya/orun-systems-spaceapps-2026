@@ -439,3 +439,18 @@ html:has(.walk-open) { overflow: hidden; }
 .map-page.mission-page.walk-open .mission-workspace > .mission-viewport {
   background: #050507 url('/mission/jezero-space-background-v2.gif') center / cover no-repeat;
 }
+
+
+/* Speed menu: open upward */
+.walk-speed {
+  position: relative;
+}
+
+.walk-speed-menu {
+  position: absolute;
+  top: auto;
+  bottom: calc(100% + 12px);
+  left: 0;
+  z-index: 100;
+  margin: 0;
+}

@@ -188,7 +188,7 @@ function RoverTest() {
                 />
             ) : (
                 <p>
-                    {error || 'Mars arazisi ve rover verileri yükleniyor...'}
+                    {error || 'Loading Mars terrain and rover data...'}
                 </p>
             )}
         </main>
