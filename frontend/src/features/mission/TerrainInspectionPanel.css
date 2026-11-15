@@ -1,0 +1,30 @@
+.terrain-inspection {
+    position: absolute;
+    z-index: 15;
+    right: 16px;
+    bottom: 56px;
+    width: min(310px, calc(100% - 32px));
+    box-sizing: border-box;
+    padding: 17px;
+    border: 1px solid rgba(133, 203, 212, .38);
+    border-radius: 12px;
+    background: linear-gradient(150deg, rgba(24, 42, 53, .97), rgba(10, 19, 29, .97));
+    box-shadow: 0 18px 45px rgba(0,0,0,.42), inset 0 1px rgba(222,249,250,.09);
+    color: #eaf6f7;
+    backdrop-filter: blur(18px);
+}
+.terrain-inspection__header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.terrain-inspection__eyebrow { color:#80dcd4; font: 10px/1.4 'IBM Plex Mono', monospace; letter-spacing:.16em; }
+.terrain-inspection__header h2 { margin:5px 0 14px; font-size:18px; font-weight:600; letter-spacing:-.03em; }
+.terrain-inspection__header button { border:1px solid #536d79; border-radius:6px; background:#1c2b38; color:#eaf6f7; padding:5px 9px; cursor:pointer; }
+.terrain-inspection__metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.terrain-inspection__metrics > div { min-width:0; padding:11px; border:1px solid #476a756e; border-radius:8px; background:#091722b5; }
+.terrain-inspection__metrics span { display:block; color:#9bb8c3; font-size:10px; letter-spacing:.07em; }
+.terrain-inspection__metrics strong { display:block; margin-top:9px; font: 500 20px/1.2 'IBM Plex Mono', monospace; white-space:nowrap; }
+.terrain-inspection__metrics small { color:#8fe5da; font-size:12px; }
+.terrain-inspection__coordinates { margin:13px 0 0; border-top:1px solid #54717d5c; }
+.terrain-inspection__coordinates > div { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid #54717d35; }
+.terrain-inspection__coordinates dt { color:#9bb8c3; font-size:12px; }
+.terrain-inspection__coordinates dd { margin:0; font:12px 'IBM Plex Mono',monospace; }
+.terrain-inspection__note { margin:12px 0 0; color:#a7c1c9; font-size:11px; line-height:1.55; }
+@media (max-width: 600px) { .terrain-inspection { right:10px; bottom:48px; width:min(300px,calc(100% - 20px)); } }

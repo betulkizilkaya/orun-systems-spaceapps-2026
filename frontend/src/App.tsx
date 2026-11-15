@@ -7,11 +7,18 @@ import { GeologyLayer, GEOLOGY_UNITS } from './GeologyLayer'
 import { PanoramaLayer } from './PanoramaLayer'
 import { loadJezeroTerrain } from './jezeroTerrain'
 import { PanoramaDialog, type Panorama } from './PanoramaDialog'
-import { MissionRoute, TerrainFraming, TerrainTarget } from './features/mission/MissionScene'
 import { RouteProfile } from './features/mission/RouteProfile'
 import './features/mission/MissionLayout.css'
 import './features/mission/RouteComparison.css'
 import './features/mission/JezeroOpening.css'
+import {TerrainInspectionPanel, type TerrainInspection,} from './features/mission/TerrainInspectionPanel'
+import {
+    TerrainFraming,
+    MissionRoute,
+    TerrainTarget,
+    InspectionTarget,
+} from './features/mission/MissionScene'
+import './features/mission/TerrainInspectionPanel.css'
 import { loadRouteGrid, shortestRoute } from './features/mission/routeGrid'
 import { SlopeAnalysisPanel } from './SlopeAnalysisPanel'
 import { RoverPlayback, type RoverTelemetry } from './features/rover/RoverPlayback'
@@ -110,6 +117,7 @@ export default function App() {
     const [start, setStart] = useState<MapPoint | null>(null)
     const [end, setEnd] = useState<MapPoint | null>(null)
     const [terrain, setTerrain] = useState<JezeroTerrainData | null>(null)
+    const [inspection, setInspection] = useState<TerrainInspection | null>(null)
     const [terrainError, setTerrainError] = useState<string | null>(null)
     const [showGeology, setShowGeology] = useState(false)
     const [geologyError, setGeologyError] = useState<string | null>(null)
@@ -565,12 +573,50 @@ export default function App() {
                             {terrain && (
                                 <mesh
                                     geometry={terrain.geometry}
+
                                     onClick={(event) => {
-                                        if (!selecting || roverOwnsCamera || event.delta > 4) return
+                                        if (!terrain || roverOwnsCamera || event.delta > 4) return
 
                                         event.stopPropagation()
-                                        pickPoint([event.point.x, event.point.y, event.point.z])
+
+                                        const point: MapPoint = [
+                                            event.point.x,
+                                            event.point.y,
+                                            event.point.z,
+                                        ]
+
+                                        if (selecting) {
+                                            setInspection(null)
+                                            pickPoint(point)
+                                            return
+                                        }
+
+                                        const [west, , east, north] = terrain.bounds
+                                        const width = terrain.geometry.parameters.width
+                                        const depth = terrain.geometry.parameters.height
+
+                                        const easting =
+                                            west + (point[0] / width + 0.5) * (east - west)
+
+                                        const northing =
+                                            north - (point[2] / depth + 0.5) *
+                                            (north - terrain.bounds[1])
+
+                                        const sample = terrain.sampleTerrain(easting, northing)
+
+                                        if (!sample) {
+                                            setInspection(null)
+                                            return
+                                        }
+
+                                        setInspection({
+                                            easting,
+                                            northing,
+                                            elevationM: sample.elevationM,
+                                            slopeDeg: sample.slopeDeg,
+                                        })
                                     }}
+
                                 >
                                     <TerrainMaterial />
                                 </mesh>
@@ -589,6 +635,17 @@ export default function App() {
                             )}
 
                             {highlight && <TerrainTarget point={highlight} />}
+
+
+                            {inspection && terrain && !selecting && (
+                                <InspectionTarget
+                                    point={terrain.projectToSurface(
+                                        inspection.easting,
+                                        inspection.northing
+                                    )}
+                                />
+                            )}
+
 
                             {start && <PointMarker point={start} color="#75e7c8" />}
                             {end && <PointMarker point={end} color="#ffc475" />}
@@ -654,6 +711,12 @@ export default function App() {
                         )}
 
                         <div className="mission-frame" aria-hidden="true" />
+                        {inspection && !selecting && (
+                            <TerrainInspectionPanel
+                                inspection={inspection}
+                                onClose={() => setInspection(null)}
+                            />
+                        )}
                         <div className="map-controls mission-tools">
                             <button
                                 type="button"
