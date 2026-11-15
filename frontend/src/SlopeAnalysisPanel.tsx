@@ -8,7 +8,7 @@ import {
   type DifficultyLevel,
 } from './routeDifficulty'
 
-// Rota uyarısıyla aynı eşikler ve renkler.
+// Same thresholds and colors as the route warnings.
 const legend: { level: DifficultyLevel; range: string; label: string }[] = [
   { level: 'easy', range: `≤ ${COMFORTABLE_MAX_DEG}°`, label: 'Walkable' },
   { level: 'hard', range: `${COMFORTABLE_MAX_DEG}–${RECOMMENDED_MAX_DEG}°`, label: 'Challenging' },
@@ -16,7 +16,7 @@ const legend: { level: DifficultyLevel; range: string; label: string }[] = [
   { level: 'dangerous', range: `> ${DANGEROUS_MIN_DEG}°`, label: 'Dangerous' },
 ]
 
-// Aralığın alt sınırından seviyeyi bulur: "20-25" → 20 → 20°'yi aşan ilk dilim önerilmez sayılır.
+// Finds the level from the lower bound of the range: "20-30" → 20 → the first band above 20° counts as "not recommended".
 function binLevel(range: string): DifficultyLevel {
   const lower = parseFloat(range)
   return classifySlope(Number.isFinite(lower) ? lower + 0.01 : 0)
@@ -88,32 +88,74 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
 
   const pixels = data?.distribution.reduce((total, bin) => total + bin.pixels, 0)
 
+  // Share of the terrain in each walking-difficulty band, summed from the distribution bins.
+  const zones = data
+    ? legend.map((item) => ({
+        ...item,
+        percentage: data.distribution
+          .filter((bin) => binLevel(bin.range) === item.level)
+          .reduce((total, bin) => total + bin.percentage, 0),
+      }))
+    : []
+
   return (
     <aside className="slope-panel" aria-labelledby="slope-panel-title">
-      <header className="slope-panel-header">
+      <header className="slope-head">
         <div>
+          <p className="slope-eyebrow">TERRAIN ANALYSIS</p>
           <h2 id="slope-panel-title">Slope analysis</h2>
-          {pixels !== undefined && <p>Jezero · 1 km² · {integer.format(pixels)} pixels</p>}
+          {pixels !== undefined && (
+            <p className="slope-meta">Jezero · 1 km² · {integer.format(pixels)} pixels</p>
+          )}
         </div>
-        <button type="button" onClick={onClose}>Close</button>
+        <button type="button" className="slope-close" onClick={onClose} aria-label="Close slope analysis">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
       </header>
 
-      {failed && <p role="alert">Could not load the slope analysis. Check the data file.</p>}
-      {!failed && !data && <p role="status">Loading slope analysis…</p>}
+      {failed && <p className="slope-status" role="alert">Could not load the slope analysis. Check the data file.</p>}
+      {!failed && !data && <p className="slope-status" role="status">Loading slope analysis…</p>}
 
       {data && (
         <>
-          <dl className="slope-metrics">
+          <dl className="slope-stats">
             {metrics.map(([key, label]) => (
-              <div key={key}>
+              <div key={key} data-level={classifySlope(data.statistics[key])}>
                 <dt>{label}</dt>
-                <dd>{decimal.format(data.statistics[key])}°</dd>
+                <dd>
+                  {decimal.format(data.statistics[key])}
+                  <small>°</small>
+                </dd>
               </div>
             ))}
           </dl>
-          <p>About 95% of pixels have a slope of {decimal.format(data.statistics.p95)}° or lower.</p>
+          <p className="slope-lede">
+            About 95% of pixels have a slope of <b>{decimal.format(data.statistics.p95)}°</b> or lower.
+          </p>
 
-          <h3>Pixel slope distribution</h3>
+          <h3 className="slope-section">Walking difficulty</h3>
+          <div className="slope-zones" role="img"
+               aria-label={zones.map((zone) => `${zone.label} ${decimal.format(zone.percentage)}%`).join(', ')}>
+            {zones.map((zone) => (
+              <span key={zone.level} data-level={zone.level} style={{ flexBasis: `${zone.percentage}%` }} />
+            ))}
+          </div>
+          <ul className="slope-legend" aria-label="Walking difficulty thresholds">
+            {zones.map((zone) => (
+              <li key={zone.level} data-level={zone.level}>
+                <i aria-hidden="true" />
+                <span>
+                  <b>{zone.label}</b>
+                  <small>{zone.range}</small>
+                </span>
+                <strong>{decimal.format(zone.percentage)}%</strong>
+              </li>
+            ))}
+          </ul>
+
+          <h3 className="slope-section">Pixel slope distribution</h3>
           <ul className="slope-distribution">
             {data.distribution.map((bin) => (
               <li key={bin.range}>
@@ -125,16 +167,11 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
               </li>
             ))}
           </ul>
-          <ul className="slope-legend" aria-label="Walking difficulty thresholds">
-            {legend.map((item) => (
-              <li key={item.level} data-level={item.level}>
-                <i aria-hidden="true" />
-                <b>{item.range}</b> {item.label}
-              </li>
-            ))}
-          </ul>
-          <p>Thresholds are approximate; they are used in route warnings for a person walking in a spacesuit.</p>
-          <p>Slope ranges describe the parcel. Rover safety limits must be verified separately.</p>
+
+          <p className="slope-note">
+            Thresholds are approximate; they are used in route warnings for a person walking in a spacesuit.
+            Slope ranges describe the parcel. Rover safety limits must be verified separately.
+          </p>
         </>
       )}
     </aside>
