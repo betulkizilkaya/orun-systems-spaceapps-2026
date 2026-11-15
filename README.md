@@ -511,11 +511,27 @@ The references below distinguish **datasets actually used for the terrain protot
 
 ## 19. License and reuse
 
-**License decision pending.** This repository was originally published without a project-level license. Until the contributors select and add a license, **no general permission to reuse, modify, or redistribute the team's original copyrighted code is granted merely by the repository being public**.
+### MIT License
 
-A recommended option for the **team-authored source code only** is the **MIT License**, subject to agreement by both contributors. If adopted, add the complete standard MIT license as `LICENSE` in the repository root and replace this section with a link to that file. **Third-party 3D models, imagery, sound effects, datasets, and other externally licensed assets are not automatically relicensed under MIT.**
+Copyright (c) 2026 Selin Kübra Şimşek and Betül Kızılkaya
 
-For asset-level terms, see the credits and original source links above. If a third-party asset's redistribution rights cannot be confirmed, remove that asset from the public repository or replace it with one you are permitted to distribute.
+The original source code developed by **Orun Systems** for the NASA Space Apps Challenge 2026 is licensed under the **MIT License**.
+
+See the [LICENSE](LICENSE) file for the complete license terms.
+
+### Third-party assets and attribution
+
+The MIT License applies only to the original source code authored by the project contributors.
+
+Third-party assets, including NASA/JPL-Caltech imagery, USGS datasets, FU Berlin resources, 3D models, sound effects, and other externally sourced materials, remain subject to their respective licenses and usage conditions.
+
+AI-generated imagery is used for illustrative and presentation purposes and does not represent scientifically verified Martian terrain.
+
+All external resources and scientific references are acknowledged in the **Sources, Scientific References and Visual Attribution** section above.
+
+**Orun Systems does not claim ownership of third-party materials or grant additional rights to redistribute them.**
+
+---
 
 ---
 
