@@ -24,6 +24,7 @@ function route(
     grid: number[][],
     start: Point,
     end: Point,
+    maxSlopeDeg = 20,
 ) {
     return shortestRoute(
         grid,
@@ -33,6 +34,7 @@ function route(
         width,
         depth,
         project,
+        maxSlopeDeg,
     )
 }
 
@@ -109,5 +111,18 @@ describe('Martian Map - BFS Scientific Validation', () => {
 
         expect(result).not.toBeNull()
         expect(result!.maxSlope).toBe(18)
+    })
+
+    it('sert sınır verilmezse dik hücrelerden de geçerek rota üretir', () => {
+        const grid = [
+            [0, 30, 0],
+            [0, 30, 0],
+            [0, 30, 0],
+        ]
+
+        const result = route(grid, point(0, 0), point(0, 2), Infinity)
+
+        expect(result).not.toBeNull()
+        expect(result!.maxSlope).toBe(30)
     })
 })

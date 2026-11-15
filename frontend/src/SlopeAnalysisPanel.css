@@ -111,6 +111,39 @@
   background: #f4a475;
 }
 
+.slope-track > span[data-level='hard'] { background: #ffd08a; }
+.slope-track > span[data-level='discouraged'] { background: #ff8a3d; }
+.slope-track > span[data-level='dangerous'] { background: #ff5d5d; }
+
+.slope-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  color: #bac4d0;
+  font-size: .78rem;
+}
+
+.slope-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slope-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #f4a475;
+}
+
+.slope-legend li[data-level='hard'] i { background: #ffd08a; }
+.slope-legend li[data-level='discouraged'] i { background: #ff8a3d; }
+.slope-legend li[data-level='dangerous'] i { background: #ff5d5d; }
+.slope-legend b { color: #e6ecf3; font-weight: 500; }
+
 @media (max-width: 540px) {
   .slope-panel {
     max-height: min(60%, 420px);

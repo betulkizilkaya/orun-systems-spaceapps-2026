@@ -455,3 +455,60 @@
   to { opacity: 1; }
 }
 
+
+.map-page.jezero-console-page:not(.walk-open) .mission-console {
+  box-sizing: border-box;
+  padding: 0 12px 12px 0;
+  background: linear-gradient(90deg, #08090be8 72%, #08090b66);
+  scrollbar-width: thin;
+}
+
+@media (min-width: 761px) {
+  .map-page.jezero-console-page:not(.walk-open) .mission-console {
+    --route-panel-top: clamp(300px, 36vh, 380px);
+    margin-block-start: var(--route-panel-top);
+    max-height: calc(100svh - var(--route-panel-top) - 36px);
+  }
+}
+
+.jezero-console-page:not(.walk-open) .mission-route-actions {
+  margin-bottom: 8px;
+}
+
+.jezero-console-page:not(.walk-open) .mission-route-actions button {
+  padding-block: .6em;
+}
+
+.jezero-console-page:not(.walk-open) .mission-console h2 {
+  margin-block: 0 8px;
+}
+
+.jezero-console-page:not(.walk-open) .mission-status {
+  margin-block: 8px;
+  line-height: 1.45;
+}
+
+.jezero-console-page:not(.walk-open) .mission-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 4px 0 10px;
+  border-block: 1px solid #eee1d63d;
+  background: #0b0d10b3;
+}
+
+.jezero-console-page:not(.walk-open) .mission-metrics > div {
+  min-width: 0;
+  padding: 10px 8px;
+}
+
+.jezero-console-page:not(.walk-open) .mission-metrics > div + div {
+  border-inline-start: 1px solid #eee1d63d;
+}
+
+.jezero-console-page:not(.walk-open) .mission-metrics dd {
+  margin: 5px 0 0;
+  color: #f6eee3;
+  font: 500 clamp(1rem, 1.5vw, 1.5rem)/1.15 'IBM Plex Mono', monospace;
+}
+

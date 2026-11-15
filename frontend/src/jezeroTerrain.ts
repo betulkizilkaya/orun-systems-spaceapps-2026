@@ -2,9 +2,24 @@ import { fromArrayBuffer } from 'geotiff'
 import { PlaneGeometry } from 'three'
 import { findRoute } from './routePlanner'
 import { findUnsafeRouteSegments } from './routeSegmentValidation'
+import {
+    RECOMMENDED_MAX_DEG,
+    DANGEROUS_MIN_DEG,
+    assessRoute,
+    type RouteAssessment,
+} from './routeDifficulty'
 
 type Point = [x: number, y: number, z: number]
-type JezeroRoute = { points: Point[]; maxSlope: number; distanceMeters: number }
+type JezeroRoute = {
+    points: Point[]
+    maxSlope: number
+    distanceMeters: number
+    assessment: RouteAssessment
+    /** points dizisinde 20°'yi aşan segmentlerin indeksleri (segment i = points[i] → points[i+1]). */
+    steepSegments: number[]
+    /** 30°'yi aşan segmentler. */
+    dangerousSegments: number[]
+}
 const SCENE_WIDTH = 120
 const SEGMENTS = 160
 const PIXELS_PER_ROUTE_CELL = 10
@@ -114,12 +129,13 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
             const [startRow, startCol] = sceneToCell(start)
             const [endRow, endCol] = sceneToCell(end)
 
-            console.warn('[Jezero A*]', {
+            // Artık sadece veri boşluğu (NoData) başlangıç/bitişte olursa buraya düşer.
+            console.warn('[Jezero A*] Başlangıç/bitiş hücresinde eğim verisi yok', {
                 startCell: [startRow, startCol],
                 startSlope: grid[startRow][startCol],
                 endCell: [endRow, endCol],
                 endSlope: grid[endRow][endCol],
-                slopeLimit: 20,
+                slopeLimit: 'yok (yumuşak ceza)',
             })
 
             return null
@@ -137,30 +153,29 @@ export async function loadJezeroTerrain(signal: AbortSignal) {
         }
         points.push(end)
 
-        const unsafeSegments = findUnsafeRouteSegments(
-            points,
-            grid,
-            SCENE_WIDTH,
-            sceneDepth,
+        // Dik segmentler artık rotayı reddetmiyor; sadece işaretleniyor.
+        const steepSegments = findUnsafeRouteSegments(
+            points, grid, SCENE_WIDTH, sceneDepth, RECOMMENDED_MAX_DEG,
         )
-
-        if (unsafeSegments.length > 0) {
-            console.warn('[Jezero Route Validation]', {
-                reason: 'Route rejected by segment validation',
-                unsafeSegments,
-                totalSegments: points.length - 1,
-                startCell: sceneToCell(start),
-                endCell: sceneToCell(end),
-            })
-
-            return null
-        }
+        const dangerousSegments = findUnsafeRouteSegments(
+            points, grid, SCENE_WIDTH, sceneDepth, DANGEROUS_MIN_DEG,
+        )
 
         let horizontalSceneDistance = 0
         for (let i = 1; i < points.length; i++) {
             horizontalSceneDistance += Math.hypot(points[i][0] - points[i - 1][0], points[i][2] - points[i - 1][2])
         }
-        return { points, maxSlope, distanceMeters: horizontalSceneDistance / scale }
+        const segmentMeters = (list: number[]) => list.reduce((sum, i) =>
+            sum + Math.hypot(points[i + 1][0] - points[i][0], points[i + 1][2] - points[i][2]) / scale, 0)
+
+        return {
+            points,
+            maxSlope,
+            distanceMeters: horizontalSceneDistance / scale,
+            assessment: assessRoute(maxSlope, segmentMeters(steepSegments), segmentMeters(dangerousSegments)),
+            steepSegments,
+            dangerousSegments,
+        }
     }
     return { geometry, getRoute, projectToSurface, sampleTerrain, bounds: dem.bounds }
 }

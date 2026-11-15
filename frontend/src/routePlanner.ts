@@ -1,9 +1,57 @@
 
+import { RECOMMENDED_MAX_DEG, DANGEROUS_MIN_DEG } from './routeDifficulty'
+
 type Cell = readonly [row: number, col: number]
 
 export type RouteOptions = {
     maxAllowedSlopeDeg?: number
     slopePenalty?: number
+}
+
+/** Hücre başına adım maliyeti: düz zeminde 1, dikleştikçe hızla artar. */
+function stepCost(slope: number, slopePenalty: number) {
+    let cost = 1 + slope * slopePenalty
+    if (slope > RECOMMENDED_MAX_DEG) cost += (slope - RECOMMENDED_MAX_DEG) * 2
+    if (slope > DANGEROUS_MIN_DEG) cost += (slope - DANGEROUS_MIN_DEG) * 10
+    return cost
+}
+
+type QueueItem = { cell: Cell; cost: number; priority: number }
+
+class MinHeap {
+    private items: QueueItem[] = []
+    get size() { return this.items.length }
+    push(item: QueueItem) {
+        const a = this.items
+        a.push(item)
+        let i = a.length - 1
+        while (i > 0) {
+            const parent = (i - 1) >> 1
+            if (a[parent].priority <= a[i].priority) break
+            ;[a[parent], a[i]] = [a[i], a[parent]]
+            i = parent
+        }
+    }
+    pop(): QueueItem | undefined {
+        const a = this.items
+        if (!a.length) return undefined
+        const top = a[0]
+        const last = a.pop()!
+        if (a.length) {
+            a[0] = last
+            let i = 0
+            for (;;) {
+                const l = i * 2 + 1, r = l + 1
+                let m = i
+                if (l < a.length && a[l].priority < a[m].priority) m = l
+                if (r < a.length && a[r].priority < a[m].priority) m = r
+                if (m === i) break
+                ;[a[m], a[i]] = [a[i], a[m]]
+                i = m
+            }
+        }
+        return top
+    }
 }
 
 const neighbors: readonly Cell[] = [
@@ -19,8 +67,11 @@ export function findRoute(
     end: Cell,
     options: RouteOptions = {},
 ): Cell[] | null {
+    // Varsayılan: sert üst sınır yok. Dik hücreler yasak değil, çok pahalıdır;
+    // rota mümkünse onlardan kaçar, mecbursa geçer (ve çağıran taraf uyarır).
+    // Sert sınır istenirse maxAllowedSlopeDeg verilir.
     const {
-        maxAllowedSlopeDeg = 20,
+        maxAllowedSlopeDeg = 90,
         slopePenalty = 1 / 15,
     } = options
 
@@ -61,15 +112,14 @@ export function findRoute(
     const costs = new Map<string, number>([[startKey, 0]])
     const cameFrom = new Map<string, Cell>()
 
-    const open = [{
+    const open = new MinHeap()
+    open.push({
         cell: start,
         cost: 0,
         priority: estimate(start),
-    }]
+    })
 
-    while (open.length > 0) {
-        open.sort((a, b) => b.priority - a.priority)
-
+    while (open.size > 0) {
         const current = open.pop()
         if (!current) break
 
@@ -103,7 +153,7 @@ export function findRoute(
 
             const nextKey = key(next)
 
-            const movementCost = 1 + slope * slopePenalty
+            const movementCost = stepCost(slope, slopePenalty)
             const newCost = current.cost + movementCost
 
             if (newCost >= (costs.get(nextKey) ?? Infinity)) {

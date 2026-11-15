@@ -1,5 +1,26 @@
 import { useEffect, useState } from 'react'
 import './SlopeAnalysisPanel.css'
+import {
+  COMFORTABLE_MAX_DEG,
+  RECOMMENDED_MAX_DEG,
+  DANGEROUS_MIN_DEG,
+  classifySlope,
+  type DifficultyLevel,
+} from './routeDifficulty'
+
+// Rota uyarısıyla aynı eşikler ve renkler.
+const legend: { level: DifficultyLevel; range: string; label: string }[] = [
+  { level: 'easy', range: `≤ ${COMFORTABLE_MAX_DEG}°`, label: 'Yürünebilir' },
+  { level: 'hard', range: `${COMFORTABLE_MAX_DEG}–${RECOMMENDED_MAX_DEG}°`, label: 'Zorlu' },
+  { level: 'discouraged', range: `${RECOMMENDED_MAX_DEG}–${DANGEROUS_MIN_DEG}°`, label: 'Önerilmez' },
+  { level: 'dangerous', range: `> ${DANGEROUS_MIN_DEG}°`, label: 'Tehlikeli' },
+]
+
+// Aralığın alt sınırından seviyeyi bulur: "20-25" → 20 → 20°'yi aşan ilk dilim önerilmez sayılır.
+function binLevel(range: string): DifficultyLevel {
+  const lower = parseFloat(range)
+  return classifySlope(Number.isFinite(lower) ? lower + 0.01 : 0)
+}
 
 const metrics = [
   ['mean', 'Ortalama'],
@@ -98,12 +119,21 @@ export function SlopeAnalysisPanel({ onClose }: { onClose: () => void }) {
               <li key={bin.range}>
                 <span>{bin.range.replace('-', '–')}°</span>
                 <span className="slope-track" aria-hidden="true">
-                  <span style={{ width: `${bin.percentage}%` }} />
+                  <span data-level={binLevel(bin.range)} style={{ width: `${bin.percentage}%` }} />
                 </span>
                 <span>%{decimal.format(bin.percentage)}</span>
               </li>
             ))}
           </ul>
+          <ul className="slope-legend" aria-label="Yürüyüş zorluğu eşikleri">
+            {legend.map((item) => (
+              <li key={item.level} data-level={item.level}>
+                <i aria-hidden="true" />
+                <b>{item.range}</b> {item.label}
+              </li>
+            ))}
+          </ul>
+          <p>Eşikler yaklaşık değerlerdir; uzay giysili insan yürüyüşü için rota uyarılarında kullanılır.</p>
           <p>Eğim aralıkları parseli betimler. Rover güvenlik sınırları ayrıca doğrulanmalıdır.</p>
         </>
       )}

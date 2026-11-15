@@ -1,0 +1,714 @@
+
+/* =========================================================
+   ORUN SYSTEMS
+   JEZERO | MISSION ROUTE CONTROL
+   Clean cinematic panel
+   ========================================================= */
+
+.map-page.jezero-console-page:not(.walk-open)
+.route-panel-rounded.orun-command-panel {
+  --panel-cyan: #a8eaff;
+  --panel-peach: #f5b28a;
+  --panel-rule: rgba(232, 171, 131, 0.19);
+  --orun-copper: #e6a47b;
+  --orun-cream: #f5eee8;
+
+  --route-panel-top: clamp(270px, 33vh, 315px);
+
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+
+  width: clamp(330px, 29vw, 485px);
+  max-width: calc(100% - 2 * var(--jezero-gutter));
+
+  height: auto;
+  min-height: 0;
+  max-height: none;
+
+  margin-block-start: var(--route-panel-top);
+  padding: 20px 25px 21px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  overflow: visible;
+
+  color: var(--orun-cream);
+
+  border: 1px solid rgba(235, 169, 123, 0.43);
+  border-radius: 16px;
+
+  background:
+    radial-gradient(
+      ellipse at 100% 0%,
+      rgba(174, 77, 38, 0.14),
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse at 0% 100%,
+      rgba(145, 61, 33, 0.10),
+      transparent 46%
+    ),
+    linear-gradient(
+      145deg,
+      #171315 0%,
+      #0b0c10 55%,
+      #171012 100%
+    );
+
+  box-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.44),
+    0 0 18px rgba(217, 121, 69, 0.055),
+    inset 0 1px 0 rgba(255, 210, 177, 0.09);
+
+  scrollbar-width: none;
+}
+
+.route-panel-rounded.orun-command-panel > * {
+  flex-shrink: 0;
+}
+
+/* Atmospheric illumination */
+
+.orun-command-panel .orun-panel-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+
+  background:
+    radial-gradient(
+      ellipse at 96% 6%,
+      rgba(255, 140, 77, 0.09),
+      transparent 42%
+    ),
+    radial-gradient(
+      ellipse at 4% 90%,
+      rgba(226, 99, 47, 0.07),
+      transparent 45%
+    );
+}
+
+/* Delicate inner frame */
+
+.orun-command-panel .orun-panel-border {
+  position: absolute;
+  inset: 7px;
+  z-index: -1;
+  pointer-events: none;
+
+  border: 1px solid rgba(245, 178, 137, 0.13);
+  border-radius: 10px;
+
+  background: transparent;
+}
+
+/* Remove old decorative objects */
+
+.orun-command-panel .orun-panel-mars,
+.orun-command-panel .orun-panel-planet {
+  display: none !important;
+}
+
+/* =========================================================
+   MISSION IDENTIFIER
+   ========================================================= */
+
+.orun-command-panel .orun-panel-mission-id {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  margin: 0 0 17px;
+  padding: 0 4px;
+
+  color: #cbbab0;
+
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.30em;
+  white-space: nowrap;
+}
+
+.orun-command-panel .orun-panel-stripes {
+  color: #eeaa7c;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+}
+
+.orun-command-panel .orun-mission-rule {
+  flex: 1;
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(239, 170, 118, 0.44),
+    transparent
+  );
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.jezero-console-page
+.orun-command-panel .route-panel-header {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.jezero-console-page
+.orun-command-panel .route-panel-header h2 {
+  min-width: 0;
+  margin: 0;
+
+  color: #f7f0eb;
+
+  font-family: "Instrument Sans", "Segoe UI", sans-serif;
+  font-size: clamp(19px, 1.65vw, 26px);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  text-shadow: 0 0 16px rgba(255, 195, 155, 0.08);
+}
+
+.jezero-console-page
+.orun-command-panel .route-panel-reset {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  border: 1px solid rgba(230, 173, 132, 0.27);
+  border-radius: 50%;
+
+  background: rgba(44, 30, 28, 0.55);
+  color: #f1e5dc;
+
+  font-size: 19px;
+
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.jezero-console-page
+.orun-command-panel .route-panel-reset:hover {
+  border-color: #e8ad84;
+  background: rgba(102, 52, 34, 0.45);
+}
+
+.orun-command-panel .orun-panel-subtitle {
+  position: relative;
+  z-index: 2;
+
+  margin: 8px 0 12px;
+
+  color: #bdaba1;
+
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   ROUTE VISUALIZATION
+   ========================================================= */
+
+.orun-command-panel .route-panel-track {
+  position: relative;
+  isolation: isolate;
+
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+
+  min-height: 105px;
+  margin: 0 0 12px;
+  padding: 10px 8px;
+
+  overflow: hidden;
+
+  border: 0;
+  border-radius: 4px;
+
+  color: #b8eaff;
+
+  background:
+    repeating-radial-gradient(
+      ellipse at 50% 62%,
+      transparent 0 22px,
+      rgba(191, 128, 92, 0.055) 23px,
+      transparent 24px 41px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(8, 22, 27, 0.45),
+      rgba(33, 17, 15, 0.38)
+    );
+}
+
+.orun-command-panel .route-panel-track svg {
+  display: block;
+  width: 100%;
+  height: 56px;
+  overflow: visible;
+
+  filter: drop-shadow(
+    0 0 4px rgba(156, 232, 255, 0.4)
+  );
+}
+
+/*
+   Do not override SVG path animation.
+   Route reveal remains controlled by React.
+*/
+
+.orun-command-panel .route-panel-track span {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  place-items: center;
+
+  width: 40px;
+  height: 40px;
+  aspect-ratio: 1;
+
+  border: 1.5px solid #a8eaff;
+  border-radius: 50%;
+
+  background: #11212a;
+  color: #d8f7ff;
+
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 15px;
+  font-weight: 500;
+
+  box-shadow:
+    0 0 13px rgba(118, 216, 255, 0.19),
+    inset 0 0 10px rgba(118, 216, 255, 0.08);
+}
+
+.orun-command-panel .route-panel-track span:last-child {
+  border-color: #f5ad7a;
+  background: #281911;
+  color: #ffe0c5;
+
+  box-shadow:
+    0 0 13px rgba(255, 130, 62, 0.22),
+    inset 0 0 10px rgba(255, 130, 62, 0.09);
+}
+
+/* =========================================================
+   ENDPOINT CONTROLS
+   ========================================================= */
+
+.jezero-console-page
+.orun-command-panel .route-panel-endpoints {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  margin: 0 0 10px;
+}
+
+.jezero-console-page
+.orun-command-panel .route-panel-endpoints button {
+  min-width: 0;
+  min-height: 43px;
+  padding: 8px 9px;
+
+  border: 1px solid rgba(214, 168, 141, 0.35);
+  border-radius: 999px;
+
+  background: linear-gradient(
+    115deg,
+    #251b1b,
+    #111216
+  );
+
+  color: #f3eae4;
+
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.jezero-console-page
+.orun-command-panel .route-panel-endpoints button:hover {
+  border-color: #e9aa7e;
+  background: #30211d;
+  transform: translateY(-1px);
+}
+
+.jezero-console-page
+.orun-command-panel
+.route-panel-endpoints button[aria-pressed="true"] {
+  border-color: #a8eaff;
+  color: #b9f1ff;
+  background: #15252b;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.orun-command-panel .mission-status {
+  margin: 5px 0 9px;
+
+  color: #b7aaa3;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   METRICS
+   ========================================================= */
+
+.map-page.jezero-console-page
+.orun-command-panel .mission-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+
+  margin: 5px 0 11px;
+  padding: 11px 6px;
+
+  border: 1px solid rgba(184, 122, 83, 0.25);
+  border-radius: 4px;
+
+  background: rgba(12, 11, 13, 0.8);
+}
+
+.map-page.jezero-console-page
+.orun-command-panel .mission-metrics > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+
+  min-width: 0;
+  padding: 0 11px;
+
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.map-page.jezero-console-page
+.orun-command-panel .mission-metrics > div + div {
+  border-inline-start: 1px solid var(--panel-rule);
+}
+
+.map-page.jezero-console-page
+.orun-command-panel .mission-metrics dd {
+  margin: 0;
+
+  color: #f7eee8;
+
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(23px, 2.2vw, 31px);
+  font-weight: 450;
+  line-height: 1.15;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+
+.orun-command-panel .mission-metrics dd small {
+  font-size: 0.65em;
+  color: inherit;
+}
+
+.map-page.jezero-console-page
+.orun-command-panel .mission-metrics dt {
+  margin: 0;
+
+  color: #b8a9a0;
+
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.jezero-console-page
+.orun-command-panel .route-panel-footer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  margin: 0;
+  padding-top: 12px;
+
+  border-top: 1px solid var(--panel-rule);
+}
+
+.jezero-console-page
+.orun-command-panel
+.route-panel-footer .mission-example {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-width: 0;
+  width: 100%;
+  min-height: 46px;
+  gap: 5px;
+  padding: 9px 12px;
+
+  border: 1px solid rgba(239, 169, 120, 0.6);
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      105deg,
+      #78452f,
+      #37231e 60%,
+      #191518
+    );
+
+  color: #fff2e8;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    filter 0.25s ease,
+    transform 0.25s ease;
+}
+
+.jezero-console-page
+.orun-command-panel
+.route-panel-footer .mission-example:hover {
+  filter: brightness(1.18);
+  transform: translateY(-1px);
+}
+
+.jezero-console-page
+.orun-command-panel .route-panel-compare {
+  min-width: 0;
+  min-height: 46px;
+  padding: 8px 9px;
+
+  border: 1px solid rgba(168, 139, 123, 0.35);
+  border-radius: 5px;
+
+  background: #151315;
+  color: #f3eae4;
+
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.jezero-console-page
+.orun-command-panel .route-panel-compare:hover {
+  border-color: #e8aa7e;
+  background: #29201e;
+}
+
+/* =========================================================
+   ROUTE COMPARISON
+   ========================================================= */
+
+.jezero-console-page
+.orun-command-panel .route-comparison {
+  margin-top: 13px;
+  padding: 12px;
+
+  border: 1px solid rgba(255, 168, 111, 0.2);
+  border-radius: 6px;
+
+  background: rgba(14, 12, 14, 0.85);
+  overflow-x: auto;
+}
+
+.orun-command-panel .route-comparison table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 5px;
+
+  font-family: "Instrument Sans", sans-serif;
+}
+
+.orun-command-panel .route-comparison th {
+  padding: 7px 8px;
+
+  color: #bba99f;
+
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.orun-command-panel .route-comparison td {
+  padding: 9px 8px;
+
+  border-top: 1px solid rgba(255, 148, 84, 0.18);
+  border-bottom: 1px solid rgba(255, 148, 84, 0.18);
+
+  background: rgba(112, 55, 34, 0.18);
+  color: #f5eee8;
+
+  font-size: 12px;
+}
+
+.orun-command-panel .route-comparison td:first-child {
+  color: #ffd0ad;
+}
+
+.orun-command-panel .route-comparison p,
+.orun-command-panel .route-comparison small {
+  color: #b6a79e;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   SMALLER DESKTOP SCREENS
+   ========================================================= */
+
+@media (min-width: 761px) and (max-height: 800px) {
+  .map-page.jezero-console-page:not(.walk-open)
+  .route-panel-rounded.orun-command-panel {
+    --route-panel-top: clamp(230px, 32vh, 270px);
+
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .orun-command-panel .orun-panel-mission-id {
+    margin-bottom: 11px;
+  }
+
+  .orun-command-panel .route-panel-track {
+    min-height: 90px;
+    margin-bottom: 8px;
+  }
+
+  .orun-command-panel .orun-panel-subtitle {
+    margin-bottom: 8px;
+  }
+
+  .jezero-console-page
+  .orun-command-panel .route-panel-endpoints {
+    margin-bottom: 7px;
+  }
+
+  .map-page.jezero-console-page
+  .orun-command-panel .mission-metrics {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  .jezero-console-page
+  .orun-command-panel .route-panel-footer {
+    padding-top: 9px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .map-page.jezero-console-page:not(.walk-open)
+  .route-panel-rounded.orun-command-panel {
+    width: auto;
+    max-width: none;
+
+    margin: 20px var(--jezero-gutter);
+    padding: 20px 18px 22px;
+
+    height: auto;
+    max-height: none;
+
+    overflow: visible;
+  }
+
+  .jezero-console-page
+  .orun-command-panel .route-panel-header h2 {
+    font-size: 19px;
+    letter-spacing: 0.12em;
+  }
+}
+
+@media (max-width: 390px) {
+  .jezero-console-page
+  .orun-command-panel .route-panel-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .jezero-console-page
+  .orun-command-panel .route-panel-endpoints {
+    gap: 7px;
+  }
+
+  .jezero-console-page
+  .orun-command-panel .route-panel-endpoints button {
+    font-size: 10px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .orun-command-panel button {
+    transition: none;
+  }
+}

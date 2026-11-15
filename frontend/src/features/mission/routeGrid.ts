@@ -1,7 +1,8 @@
 
 import { fromArrayBuffer } from 'geotiff'
 
-export const MAX_ALLOWED_SLOPE_DEG = 20
+/** Sert eğim sınırı yok; mesafe odaklı alternatif, istenirse sınır parametresiyle kısıtlanır. */
+export const MAX_ALLOWED_SLOPE_DEG = Infinity
 
 type Point = [number, number, number]
 
@@ -74,6 +75,7 @@ export function shortestRoute(
     width: number,
     depth: number,
     project: (x: number, y: number) => Point | null,
+    maxSlopeDeg: number = MAX_ALLOWED_SLOPE_DEG,
 ) {
     if (!grid.length || !grid[0]?.length) return null
 
@@ -100,7 +102,7 @@ export function shortestRoute(
         return (
             Number.isFinite(slope) &&
             slope >= 0 &&
-            slope <= MAX_ALLOWED_SLOPE_DEG
+            slope <= maxSlopeDeg
         )
     }
 

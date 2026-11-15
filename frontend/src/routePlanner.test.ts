@@ -57,7 +57,7 @@ describe('Martian Map - A* Scientific Validation', () => {
             [0, 0],
         ]
 
-        expect(findRoute(grid, [0, 0], [1, 1])).toBeNull()
+        expect(findRoute(grid, [0, 0], [1, 1], { maxAllowedSlopeDeg: 20 })).toBeNull()
     })
 
     it('bitiş eğimi sınırı aşıyorsa rota oluşturmaz', () => {
@@ -66,7 +66,41 @@ describe('Martian Map - A* Scientific Validation', () => {
             [0, 30],
         ]
 
-        expect(findRoute(grid, [0, 0], [1, 1])).toBeNull()
+        expect(findRoute(grid, [0, 0], [1, 1], { maxAllowedSlopeDeg: 20 })).toBeNull()
+    })
+
+    it('sert sınır yoksa dik başlangıç/bitiş hücresine de rota çizer', () => {
+        const grid = [
+            [30, 0],
+            [0, 40],
+        ]
+
+        expect(findRoute(grid, [0, 0], [1, 1])).not.toBeNull()
+    })
+
+    it('tamamen dik bir duvar varsa rota yine oluşur ve duvardan geçer', () => {
+        const grid = [
+            [0, 25, 0],
+            [0, 25, 0],
+            [0, 25, 0],
+        ]
+
+        const route = findRoute(grid, [0, 0], [0, 2])
+
+        expect(route).not.toBeNull()
+        expect(route).toContainEqual([0, 1])
+        expect(findRoute(grid, [0, 0], [0, 2], { maxAllowedSlopeDeg: 20 })).toBeNull()
+    })
+
+    it('mümkünse dik hücre yerine dolambaçlı düz yolu seçer', () => {
+        const grid = [
+            [0, 35, 0],
+            [0, 0, 0],
+        ]
+
+        const route = findRoute(grid, [0, 0], [0, 2])
+
+        expect(route).not.toContainEqual([0, 1])
     })
 
     it('eğim cezası olmadan en kısa hücre yolunu seçer', () => {

@@ -1,0 +1,461 @@
+/* =========================================================
+   JEZERO | LAYOUT + ROTA PANELİ (v2 · "kutusuz uzay" tasarımı)
+   App.tsx'te en son import edilir.
+   ========================================================= */
+
+.jezero-console-page {
+  height: auto;
+  overflow: visible;
+  min-height: 100dvh;
+}
+
+/* ---------- Sol sütun: başlık + panel tek akışta ---------- */
+@media (min-width: 761px) {
+  .jezero-console-page .mission-workspace {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    height: auto;
+    min-height: max(620px, 100svh);
+  }
+
+  .jezero-console-page .mission-viewport {
+    height: max(620px, 100svh);
+  }
+
+  .jezero-console-page .jezero-side-stack {
+    grid-area: 1 / 1;
+    position: relative;
+    z-index: 13;
+    align-self: start;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: clamp(340px, 30vw, 500px);
+    max-width: calc(100% - 2 * var(--jezero-gutter));
+    max-height: max(620px, 100svh);
+    margin-left: var(--jezero-gutter);
+    padding-block: clamp(20px, 4vh, 45px) clamp(16px, 3vh, 32px);
+    pointer-events: none;
+  }
+
+  .jezero-console-page .jezero-side-stack > * { pointer-events: auto; }
+
+  .jezero-console-page .jezero-side-stack > .map-header {
+    position: static;
+    flex: 0 0 auto;
+    margin: 0 0 clamp(12px, 2.2vh, 24px);
+    padding: 0;
+    pointer-events: none;
+  }
+
+  .jezero-console-page .jezero-side-stack .mission-name h1 {
+    margin: clamp(10px, 2.4vh, 36px) 0 4px;
+    font-size: clamp(2.8rem, min(7vw, 10vh), 7.2rem);
+  }
+
+  .jezero-console-page .jezero-side-stack > .jz-panel::-webkit-scrollbar { display: none; }
+
+  .jezero-console-page .jezero-side-stack > .jz-panel {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .jezero-console-page .jezero-side-stack { display: contents; }
+  .jezero-console-page .map-header { order: 0; }
+  .jezero-console-page .mission-viewport { order: 1; }
+  .jezero-console-page .jz-panel {
+    order: 2;
+    margin: 20px var(--jezero-gutter);
+  }
+}
+
+/* ---------- Panel ---------- */
+.jz-panel {
+  --amber: #ffb25b;
+  --cyan: #9fe3ff;
+  --ink: #f3ece4;
+  --mute: #a39c93;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(18px, 3vh, 30px) clamp(20px, 2vw, 30px);
+  color: var(--ink);
+  font-family: 'Instrument Sans', 'Segoe UI', sans-serif;
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(255, 140, 60, .08), transparent 45%),
+    rgba(6, 7, 10, .72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.jz-panel > * { flex-shrink: 0; }
+
+.map-page.walk-open .jz-panel { display: none; }
+
+.jz-label {
+  margin: 0;
+  color: var(--mute);
+  font: 400 10px/1.4 'IBM Plex Mono', monospace;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.jz-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.jz-state i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--mute);
+  vertical-align: 1px;
+}
+
+.jz-state[data-ready='true'] i {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.jz-kicker { margin-top: clamp(14px, 3vh, 30px); }
+
+.jz-title {
+  margin: 8px 0 0;
+  font: 400 clamp(30px, 3.2vw, 40px)/1.05 'Instrument Sans', 'Segoe UI', sans-serif;
+  letter-spacing: -.03em;
+}
+
+/* ---------- Rota omurgası ---------- */
+.jz-route {
+  position: relative;
+  margin-top: clamp(20px, 4vh, 38px);
+  padding-left: 40px;
+}
+
+.jz-spine {
+  position: absolute;
+  left: 5px;
+  top: 12px;
+  bottom: 12px;
+  width: 1px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .14);
+}
+
+.jz-spine-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(var(--cyan), var(--amber));
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.jz-spine-fill.is-drawn {
+  transform: scaleY(1);
+  animation: jz-draw 1.6s cubic-bezier(.4, 0, .2, 1) both;
+}
+
+@keyframes jz-draw { from { transform: scaleY(0); } }
+
+.jz-node {
+  position: absolute;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid var(--cyan);
+  background: #06070a;
+  transition: background .3s, box-shadow .3s;
+}
+
+.jz-node-a { top: 17px; }
+.jz-node-a[data-set='true'] { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+.jz-node-b { bottom: 17px; border-color: var(--amber); }
+.jz-node-b[data-set='true'] { background: var(--amber); box-shadow: 0 0 14px var(--amber); }
+
+.jz-endpoint {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ---------- Metrikler ---------- */
+.jz-metrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 0;
+  padding: clamp(10px, 2vh, 18px) 0 clamp(12px, 2.4vh, 22px);
+}
+
+.jz-metric {
+  display: flex;
+  flex-direction: column-reverse;
+  margin: 0;
+  min-width: 0;
+}
+
+.jz-metric dt { margin-top: 12px; }
+.jz-metric dd { margin: 0; }
+
+.jz-big {
+  font: 300 clamp(54px, 9vh, 86px)/.9 'IBM Plex Mono', monospace;
+  letter-spacing: -.06em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.jz-big small {
+  color: var(--amber);
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+.jz-gauge { align-items: center; text-align: center; }
+.jz-gauge svg { display: block; }
+
+.jz-gauge-track,
+.jz-gauge-value {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.jz-gauge-track { stroke: rgba(255, 255, 255, .14); }
+
+.jz-gauge-value {
+  stroke: var(--amber);
+  filter: drop-shadow(0 0 4px var(--amber));
+  transition: stroke-dasharray .9s cubic-bezier(.4, 0, .2, 1);
+}
+
+.jz-gauge-value[data-level='discouraged'] { stroke: #ff8a3d; filter: drop-shadow(0 0 4px #ff8a3d); }
+.jz-gauge-value[data-level='dangerous'] { stroke: #ff5d5d; filter: drop-shadow(0 0 5px #ff5d5d); }
+
+.jz-gauge text {
+  fill: var(--ink);
+  font: 400 22px 'IBM Plex Mono', monospace;
+}
+
+/* ---------- Rota uyarısı ---------- */
+.jz-warning {
+  --warn: #ffb25b;
+  margin: 12px 0 0;
+  padding: 10px 14px 11px;
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  border-left: 3px solid var(--warn);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warn) 9%, transparent);
+  animation: jz-warning-in .45s cubic-bezier(.4, 0, .2, 1) both;
+}
+.jz-warning[data-level='discouraged'] { --warn: #ff8a3d; }
+.jz-warning[data-level='dangerous'] { --warn: #ff5d5d; }
+.jz-warning strong {
+  display: block;
+  color: var(--warn);
+  font: 500 11px 'IBM Plex Mono', monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.jz-warning p {
+  margin: 5px 0 0;
+  color: var(--ink);
+  opacity: .82;
+  font-size: 12px;
+  line-height: 1.5;
+}
+@keyframes jz-warning-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .jz-warning { animation: none; } }
+
+/* ---------- Notlar ---------- */
+.jz-note {
+  margin: 10px 0 0;
+  color: var(--mute);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.jz-note:empty { display: none; }
+
+/* ---------- Hap butonlar ---------- */
+.jz-pill,
+.jz-profile button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 178, 91, .35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .03);
+  color: var(--ink);
+  font: 400 12px 'Instrument Sans', 'Segoe UI', sans-serif;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
+}
+
+.jz-pill:hover:enabled,
+.jz-profile button:hover { border-color: var(--amber); color: var(--amber); }
+
+.jz-pill[aria-pressed='true'],
+.jz-pill[aria-expanded='true'] {
+  border-color: var(--amber);
+  background: rgba(255, 178, 91, .12);
+  color: var(--amber);
+}
+
+.jz-pill:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---------- Eğim profili ---------- */
+.jz-profile { margin-top: 14px; }
+
+.jz-profile summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.jz-profile summary::-webkit-details-marker { display: none; }
+.jz-profile summary::after { content: '+'; color: var(--amber); font-size: 16px; }
+.jz-profile[open] summary::after { content: '–'; }
+
+.jz-profile h3 { display: none; }
+.jz-profile p { margin: 8px 0; color: var(--mute); font-size: 12px; line-height: 1.5; }
+.jz-profile .route-verified { color: var(--cyan); }
+.jz-profile input[type='range'] { width: 100%; accent-color: var(--amber); }
+.jz-profile label { display: grid; gap: 4px; color: var(--mute); font-size: 12px; }
+
+.jz-profile .route-chart {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .03);
+  color: var(--mute);
+}
+
+.jz-profile .route-chart-grid { stroke: rgba(255, 255, 255, .14); }
+
+.jz-profile .route-chart-line {
+  stroke: var(--amber);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.jz-profile .route-chart circle { fill: var(--cyan); }
+
+/* ---------- Karşılaştırma ---------- */
+.jz-panel .route-comparison {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .03);
+}
+
+.jz-panel .route-comparison table { color: var(--ink); }
+
+.jz-panel .route-comparison th,
+.jz-panel .route-comparison td { border-bottom: 1px solid rgba(255, 255, 255, .08); }
+
+.jz-panel .route-comparison p { color: var(--mute); font-size: 12px; }
+
+/* ---------- Aksiyonlar ---------- */
+.jz-actions { margin-top: auto; padding-top: clamp(16px, 3vh, 26px); }
+
+.jz-primary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 56px;
+  padding: 0 24px;
+  border: 1px solid var(--amber);
+  border-radius: 999px;
+  background: rgba(255, 178, 91, .08);
+  color: var(--amber);
+  font: 500 12px 'IBM Plex Mono', monospace;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s, box-shadow .2s;
+}
+
+.jz-primary:hover:enabled {
+  background: rgba(255, 178, 91, .16);
+  box-shadow: 0 0 24px rgba(255, 178, 91, .18);
+}
+
+.jz-primary:disabled { opacity: .45; cursor: not-allowed; }
+.jz-eta { color: var(--mute); }
+
+.jz-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.jz-primary:focus-visible,
+.jz-pill:focus-visible,
+.jz-profile summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .jz-spine-fill.is-drawn { animation: none; }
+  .jz-gauge-value, .jz-node, .jz-pill, .jz-primary { transition: none; }
+}
+
+/* ---------- Başlık: sadece büyük logo ---------- */
+.jz-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.jezero-console-page .jezero-side-stack .jezero-brand {
+  width: clamp(190px, 21vw, 340px);
+  max-height: none;
+}
+
+.jezero-console-page .jezero-side-stack > .map-header {
+  margin-bottom: clamp(16px, 3vh, 30px);
+}
+
+/* ---------- Logo + panel biraz yukarı ---------- */
+.jezero-console-page .jezero-side-stack {
+  padding-top: clamp(4px, 1vh, 12px);
+}
+
+.jezero-console-page .jezero-side-stack > .map-header {
+  margin-bottom: clamp(6px, 1.2vh, 14px);
+}
+
+.jezero-console-page .jezero-side-stack .jezero-brand {
+  margin-top: -6px;
+}
