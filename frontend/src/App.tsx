@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from 'react'
 import { Line, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { MOUSE, TOUCH, TextureLoader, SRGBColorSpace } from 'three'
@@ -11,6 +10,8 @@ import { RouteProfile } from './features/mission/RouteProfile'
 import './features/mission/MissionLayout.css'
 import './features/mission/RouteComparison.css'
 import './features/mission/JezeroOpening.css'
+import './features/mission/JezeroConsole.css'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {TerrainInspectionPanel, type TerrainInspection,} from './features/mission/TerrainInspectionPanel'
 import {
     TerrainFraming,
@@ -22,7 +23,7 @@ import './features/mission/TerrainInspectionPanel.css'
 import { loadRouteGrid, shortestRoute } from './features/mission/routeGrid'
 import { SlopeAnalysisPanel } from './SlopeAnalysisPanel'
 import { RoverPlayback, type RoverTelemetry } from './features/rover/RoverPlayback'
-import { RoverControls } from './features/rover/RoverControls'
+import { JezeroWalkControls } from './features/rover/JezeroWalkControls'
 import type { RoverCameraMode } from './features/rover/RoverCamera'
 import { loadRoverPlayback, type RoverPlaybackData } from './features/rover/roverPlaybackData'
 import { createRoutePlayback } from './features/rover/createRoutePlayback'
@@ -109,10 +110,34 @@ export default function App() {
     }, [])
 
     function enterMap() {
-        window.location.hash = 'harita'
-        setExploring(true)
-    }
+    closeRover()
+    window.location.hash = 'harita'
+    setExploring(true)
+}
     const [view, setView] = useState<MapView>('2d')
+    const switchingView = useRef(false)
+
+async function switchMapView(next: MapView) {
+    if (next === view || switchingView.current) return
+
+    const canvas = document.querySelector('#jezero-map canvas')
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    switchingView.current = true
+    try {
+        if (canvas && !reducedMotion) {
+            await canvas.animate(
+                [{ opacity: 1 }, { opacity: 0 }],
+                { duration: 140, easing: 'ease-in', fill: 'forwards' },
+            ).finished
+        }
+
+        if (next === '2d') closeRover()
+        setView(next)
+    } finally {
+        switchingView.current = false
+    }
+}
     const [selecting, setSelecting] = useState<PointKind | null>(null)
     const [start, setStart] = useState<MapPoint | null>(null)
     const [end, setEnd] = useState<MapPoint | null>(null)
@@ -208,7 +233,9 @@ export default function App() {
         setRoverError('')
         setSelecting(null)
         setView('3d')
-        setShowRover(true)
+    setShowSlopeAnalysis(false)
+    setRoverCamera('follow')
+    setShowRover(true)
     }
 
 
@@ -246,7 +273,6 @@ export default function App() {
         setRoverPlaying(false)
         setRoverDistance(0)
         setRoverTelemetry(null)
-        setRoverCamera('orbit')
     }, [selectedRoverData])
 
     const activeRoverData = selectedRoverData ?? roverData
@@ -439,7 +465,7 @@ export default function App() {
                 style={{
                     position: 'fixed',
                     inset: 0,
-                    zIndex: 100,
+                    zIndex: 200,
                     pointerEvents: exploring ? 'none' : 'auto',
                 }}
             >
@@ -520,7 +546,9 @@ export default function App() {
                             <button type="button" className="opening-button" disabled={!terrain}
                                     onClick={() => {
                                         enterMap()
-                                        requestAnimationFrame(() => document.getElementById('jezero-map')?.focus())
+                                        requestAnimationFrame(() => {
+  document.getElementById('jezero-map')?.focus({ preventScroll: true })
+})
                                     }}>
                                 <span className="opening-waypoint" aria-hidden="true" />
                                 Rota planlayıcıyı aç <span className="opening-arrow" aria-hidden="true">⟶</span>
@@ -535,13 +563,13 @@ export default function App() {
                     </div>
                 </section>
             </div>
-            <main className="map-page mission-page" inert={!exploring}>
+            <main className={`map-page mission-page jezero-console-page${roverVisible ? ' walk-open' : ''}`} inert={!exploring}>
                 <header className="map-header">
                     <div className="mission-name">
-                        <p className="team-name">Orun Systems</p>
-                        <h1>Martian Map</h1>
+                        <img className="jezero-brand" src={`${import.meta.env.BASE_URL}mission/orun-opening-logo.png`} alt="ORUN Systems" />
+                        <h1>Jezero</h1>
                     </div>
-                    <span className="terrain-label">Jezero Krateri <span aria-hidden="true">/</span> Mars</span>
+                    <span className="terrain-label">1 km² çalışma alanı</span>
                 </header>
 
                 <div className="mission-workspace">
@@ -557,8 +585,9 @@ export default function App() {
                     >
 
                         <Canvas
-                            key={view}
-                            orthographic={isTopView}
+    key={view}
+    className="jezero-canvas"
+    orthographic={isTopView}
                             camera={
                                 isTopView
                                     ? {
@@ -575,10 +604,11 @@ export default function App() {
                                         far: 500,
                                     }
                             }
+                            gl={{ alpha: true }}
+onCreated={({ gl }) => gl.setClearAlpha(0)}
                             dpr={[1, 1.5]}
                             fallback={<p>Tarayıcıda harita açılamadı.</p>}
                         >
-                            <color attach="background" args={['#0b111a']} />
                             <ambientLight intensity={0.58} />
                             <directionalLight position={[-45, 35, 25]} color="#ffe3ce" intensity={2.25} />
                             <directionalLight position={[40, 28, -45]} color="#82b8df" intensity={0.48} />
@@ -663,13 +693,13 @@ export default function App() {
                             {start && <PointMarker point={start} color="#75e7c8" />}
                             {end && <PointMarker point={end} color="#ffc475" />}
 
-                            {alternativePositions && (
+                            {alternativePositions && !roverVisible && (
                                 <Line points={alternativePositions} color="#ffc475" lineWidth={2}
                                       dashed dashSize={1} gapSize={1.25} renderOrder={11}
                                       depthTest={false} depthWrite={false} />
                             )}
 
-                            {routePositions && (
+                            {routePositions && !roverVisible && (
                                 <MissionRoute
                                     key={routeVersion}
                                     points={routePositions}
@@ -734,7 +764,7 @@ export default function App() {
                             <button
                                 type="button"
                                 aria-pressed={isTopView}
-                                onClick={() => { closeRover(); setView('2d') }}
+                                onClick={() => void switchMapView('2d')}
                             >
                                 2B · Üstten
                             </button>
@@ -742,7 +772,7 @@ export default function App() {
                             <button
                                 type="button"
                                 aria-pressed={!isTopView}
-                                onClick={() => setView('3d')}
+                                onClick={() => void switchMapView('3d')}
                             >
                                 3B · Arazi
                             </button>
@@ -779,30 +809,7 @@ export default function App() {
                         </div>
                     </section>
                     <aside className="mission-console" aria-label="Rota planlama ve astronot simülasyonu">
-                        <button
-                            type="button"
-                            aria-expanded={showRover}
-                            disabled={!terrain}
-                            onClick={toggleRover}
-                        >
-                            {showRover ? 'Simülasyonu kapat' : 'Astronot simülasyonunu aç'}
-                        </button>
-                        {showRover && (activeRoverData ? (
-                            <RoverControls
-                                playing={roverPlaying}
-                                setPlaying={updateRoverPlaying}
-                                distanceM={roverDistance}
-                                setDistanceM={updateRoverDistance}
-                                totalDistanceM={roverTotal}
-                                speedMps={roverSpeed}
-                                setSpeedMps={setRoverSpeed}
-                                cameraMode={roverCamera}
-                                setCameraMode={setRoverCamera}
-                                telemetry={roverTelemetry}
-                            />
-                        ) : (
-                            <p role="status">{roverError || 'Simülasyon rotası yükleniyor…'}</p>
-                        ))}
+                        
 
                         <header>
                             <h2>Rota planlama</h2>
@@ -889,18 +896,7 @@ export default function App() {
                             </section>
                         )}
 
-                        {route && terrain && (
-                            <RouteProfile key={routeVersion}
-                                          grid={grid}
-                                          gridError={gridError && !grid}
-                                          points={route.points}
-                                          width={terrain.geometry.parameters.width}
-                                          depth={terrain.geometry.parameters.height}
-                                          distanceMeters={route.distanceMeters}
-                                          verified={verified}
-                                          onHighlight={setHighlight}
-                            />
-                        )}
+                        
 
                         {showGeology &&
                             (geologyError ? (
@@ -924,6 +920,33 @@ export default function App() {
                                 <span>360° pinler yaklaşık çekim konumlarını gösterir.</span>
                             ))}
                     </aside>
+          <footer className="jezero-playback-rail" aria-label="Yürüyüş ve eğim profili">
+            <div className="jezero-playback-controls">
+              <button className="jezero-playback-toggle"
+                            type="button"
+                            aria-expanded={showRover}
+                            disabled={!terrain}
+                            onClick={toggleRover}
+                        >
+                            {showRover ? 'Simülasyonu kapat' : 'Yürüyüşü aç'}
+                        </button>
+                        
+            </div>
+            <div className="jezero-profile-slot">
+              {route && terrain && (
+                            <RouteProfile key={routeVersion}
+                                          grid={grid}
+                                          gridError={gridError && !grid}
+                                          points={route.points}
+                                          width={terrain.geometry.parameters.width}
+                                          depth={terrain.geometry.parameters.height}
+                                          distanceMeters={route.distanceMeters}
+                                          verified={verified}
+                                          onHighlight={setHighlight}
+                            />
+                        )}
+            </div>
+          </footer>
                 </div>
                 {activePanorama && (
                     <PanoramaDialog
@@ -931,7 +954,40 @@ export default function App() {
                         onClose={() => setActivePanorama(null)}
                     />
                 )}
-            </main>
+        {roverVisible && (
+          <>
+            <header className="walk-header">
+              <span className="walk-wordmark">ORUN SYSTEMS</span>
+              <div className="walk-heading">
+                <h1>Jezero</h1>
+                <p>Yürüyüş simülasyonu</p>
+              </div>
+              <button type="button" className="walk-exit" onClick={closeRover}>
+                Çıkış <span aria-hidden="true">↗</span>
+              </button>
+            </header>
+            <section className="walk-dock" aria-label="Yürüyüş kontrolleri">
+              {activeRoverData ? (
+                <JezeroWalkControls
+                  frames={activeRoverData.frames}
+                  playing={roverPlaying}
+                  setPlaying={updateRoverPlaying}
+                  distanceM={roverDistance}
+                  setDistanceM={updateRoverDistance}
+                  totalDistanceM={roverTotal}
+                  speedMps={roverSpeed}
+                  setSpeedMps={setRoverSpeed}
+                  cameraMode={roverCamera}
+                  setCameraMode={setRoverCamera}
+                  telemetry={roverTelemetry}
+                />
+              ) : (
+                <p role="status">{roverError || 'Simülasyon rotası yükleniyor…'}</p>
+              )}
+            </section>
+          </>
+        )}
+      </main>
         </>
     )
 }

@@ -346,3 +346,30 @@
     }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .horizon-page.is-exploring .flight-cover.opening-cover {
+    background: #050507;
+    transition: opacity 280ms ease 420ms;
+  }
+
+  .horizon-page.is-exploring .opening-frame {
+    animation: jezero-cover-fade-out 220ms ease-out both;
+  }
+
+  .horizon-page.is-exploring :is(.opening-image, .opening-route, .opening-route path) {
+    animation: none;
+  }
+
+  .horizon-page.is-exploring + .mission-page.walk-open .walk-dock {
+    animation: jezero-dock-slide-up 620ms cubic-bezier(.22, 1, .36, 1) 560ms both;
+  }
+}
+
+@keyframes jezero-cover-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes jezero-dock-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
