@@ -66,7 +66,7 @@ Three **illustrative, simulated** scientific observation stops are defined in `f
 | WP-02 | Terrain Gradient Survey | 13.48° | Crater rim (`cr`) |
 | WP-03 | Geomorphology Observation | 16.04° | Crater rim (`cr`) |
 
-These are **proposed mission observations**, not sites sampled by an actual mission or certified safe destinations. The waypoint dataset is associated with the prerecorded demonstration route; do not assume its coordinates coincide with every newly generated interactive route.
+These are **proposed mission observations**, not sites sampled by an actual mission or certified safe destinations. The waypoint metadata was originally associated with prerecorded playback data. In the current scientific mission workflow, the planner uses the waypoint's projected coordinates as sequential A* destinations and generates a new route through their corresponding planning-grid cells. Other independently generated interactive routes do not automatically visit these waypoints.
 
 ### Scientific mission planning and 3D waypoint visualization
 
@@ -80,9 +80,9 @@ The scientific mission workflow extends the existing A* route planner to connect
 
 Each waypoint record includes Mars Equirectangular (EQC) projected coordinates, local terrain coordinates, modeled elevation and slope, geological unit information, and an observation task.
 
-The mission planner converts waypoint coordinates into the terrain grid, calculates traversable A* segments between successive destinations, and joins the segments into a continuous exploration route. It applies **configurable slope constraints** during planning; these must not be confused with the separate 20° hard-constrained 830 m reference example.
+The mission planner converts waypoint coordinates into the terrain grid, calculates traversable A* segments between successive destinations, and joins the segments into a continuous exploration route. The current scientific mission workflow applies an **experimental hard maximum slope of 25° per 10 m planning cell** (using the maximum raster slope within each cell). Cells exceeding this limit are excluded; if any segment cannot be connected, planning fails rather than silently relaxing the limit. This is distinct from the separately saved **830 m reference route**, which uses a **20° hard cell-slope constraint**, and from the main interactive planner, which normally uses soft slope penalties.
 
-The current scientific mission demonstration reports **approximately 1,360 m across three mission segments**, with a **maximum modeled slope of 21.6°**. These are route-model outputs, not verified astronaut safety limits.
+A reported scientific mission demonstration produced **approximately 1,360 m across three segments**, with a **maximum modeled slope of 21.6°**. These figures come from the development demonstration and have **not been independently reproduced in this README review**. The planner calculates route length and maximum slope at runtime, so results depend on the start point, waypoints, terrain grid, and configured threshold. They are not verified astronaut safety limits.
 
 The Three.js view renders the combined route on the modeled surface and shows three numbered waypoint markers (`01`, `02`, `03`). Marker placement follows the terrain projection so locations remain aligned as the camera rotates, zooms, or changes perspective. Marker styling can distinguish pending and reached destinations.
 
@@ -119,7 +119,7 @@ The project includes analytical artifacts, reference route data, and automated u
 | DEM source comparison | **25 / 25** sampled points matched | Sample-based fidelity check, not an exhaustive pixel comparison |
 | Slope raster reproducibility | **1,000,000 / 1,000,000** valid pixels matched | Recomputed using the same GDAL Horn method; confirms numerical reproducibility, not physical ground truth |
 | Hard-constrained A* example | **830 m** route; **19.24°** maximum encountered route-cell slope | Saved reference example with a 20° maximum-cell-slope setting; not a universal interactive-route result |
-| Multi-waypoint science mission demonstration | **~1,360 m**, **3 segments**, **21.6°** reported maximum modeled slope | Separate sequential waypoint route; not comparable to the 830 m reference route or a safety certification |
+| Multi-waypoint science mission demonstration | **~1,360 m**, **3 segments**, **21.6°** reported maximum modeled slope | Reported development-run result using a 25° hard cell-slope limit; not independently rerun for this documentation update and not comparable to the 830 m reference route or a safety certification |
 | Route planner tests | Test cases for path selection, steep-cell penalties, optional hard constraints, invalid cells, and four-neighbor connectivity | Source-level tests; execute locally to confirm current pass status |
 
 The saved 830 m example is available in `frontend/public/data/jezero-test-rotasi.json`. Earlier exploratory experiments use **different endpoints, parameters, or route definitions**, so their route lengths must not be presented as direct before/after comparisons.
